@@ -68,48 +68,91 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
             }
         }
         LazyColumn(
-            modifier = Modifier.padding(innerPadding),
-            contentPadding = PaddingValues(15.dp)
+            modifier = Modifier.padding(innerPadding), contentPadding = PaddingValues(15.dp)
         ) {
-            items(notifications) { item ->
-                Card(
-                    modifier = Modifier.padding(vertical = 5.dp),
-                    onClick = {
-                        val pendingIntent = viewModel.cache[item.id]
-                        if (pendingIntent !== null) {
-                            val options = ActivityOptions.makeBasic().apply {
-                                pendingIntentBackgroundActivityStartMode =
-                                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+            items(notifications, key = { it.id }) { item ->
+                val dismissState = rememberSwipeToDismissBoxState(
+                    positionalThreshold = { totalDistance -> totalDistance * 0.9f }
+                )
+                SwipeToDismissBox(
+                    state = dismissState,
+                    enableDismissFromEndToStart = true,
+                    enableDismissFromStartToEnd = false,
+                    onDismiss = {
+                        viewModel.deleteNotification(item)
+                        scope.launch {
+                            snackbarHostState.showSnackbar("A notification has been deleted")
+                        }
+                    },
+                    backgroundContent = {
+                        val almostThere =
+                            dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
+                        val scale by animateFloatAsState(
+                            targetValue = if (almostThere) 1.3f else 1f
+                        )
+                        val color by animateColorAsState(
+                            targetValue = if (almostThere) MaterialTheme.colorScheme.error
+                            else MaterialTheme.colorScheme.errorContainer
+                        )
+
+                        Surface(
+                            Modifier
+                                .padding(vertical = 5.dp)
+                                .fillMaxSize(),
+                            color = color,
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.CenterEnd,
+                                modifier = Modifier.padding(20.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    modifier = Modifier.scale(scale)
+                                )
                             }
-                            pendingIntent.send(options.toBundle())
-                        } else {
-                            val intent =
-                                context.packageManager.getLaunchIntentForPackage(item.packageName)
-                            context.startActivity(intent)
                         }
-                    }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Image(
-                            bitmap = item.icon.asImageBitmap(),
-                            contentDescription = null,
-                            modifier = Modifier.size(30.dp)
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(item.title, style = MaterialTheme.typography.titleMedium)
-                            Text(item.text, style = MaterialTheme.typography.bodyMedium)
+                    }) {
+                    Card(
+                        modifier = Modifier.padding(vertical = 5.dp), onClick = {
+                            try {
+                                val pendingIntent = viewModel.cache[item.id]
+                                if (pendingIntent !== null) {
+                                    val options = ActivityOptions.makeBasic().apply {
+                                        pendingIntentBackgroundActivityStartMode =
+                                            ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                                    }
+                                    pendingIntent.send(options.toBundle())
+                                } else {
+                                    launchPackage(context, item.packageName)
+                                }
+                            } catch (e: Exception) {
+                                launchPackage(context, item.packageName)
+                            }
+                        }) {
+                        Row(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Image(
+                                bitmap = item.icon.asImageBitmap(),
+                                contentDescription = null,
+                                modifier = Modifier.size(30.dp)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(item.title, style = MaterialTheme.typography.titleMedium)
+                                Text(item.text, style = MaterialTheme.typography.bodyMedium)
+                            }
+                            Text(
+                                text = item.timestamp.toDateTime(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.Gray
+                            )
                         }
-                        Text(
-                            text = item.timestamp.toDateTime(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.Gray
-                        )
                     }
                 }
             }
