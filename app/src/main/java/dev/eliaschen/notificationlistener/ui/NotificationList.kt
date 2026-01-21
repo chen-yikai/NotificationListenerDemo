@@ -1,6 +1,8 @@
 package dev.eliaschen.notificationlistener.ui
 
 import android.app.ActivityOptions
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,29 +17,45 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.eliaschen.notificationlistener.toDateTime
+import dev.eliaschen.notificationlistener.util.launchPackage
+import dev.eliaschen.notificationlistener.util.toDateTime
 import dev.eliaschen.notificationlistener.viewmodel.NotificationViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val notifications by viewModel.notifications.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(topBar = {
         Surface(
@@ -53,17 +71,21 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(15.dp), horizontalArrangement = Arrangement.Center
+                    .padding(15.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
                 Text("Notification Listener Demo", style = MaterialTheme.typography.titleMedium)
             }
         }
+    }, snackbarHost = {
+        SnackbarHost(snackbarHostState)
     }) { innerPadding ->
         if (notifications.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     "No notifications yet",
-                    color = Color.Gray
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }

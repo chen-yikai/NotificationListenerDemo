@@ -17,22 +17,3 @@ import javax.inject.Singleton
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao
 }
-
-@Module
-@InstallIn(SingletonComponent::class)
-object Database {
-    @Provides
-    @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "app_database"
-        ).fallbackToDestructiveMigration().build()
-    }
-
-    @Provides
-    fun provideNotificationDao(db: AppDatabase): NotificationDao {
-        return db.notificationDao()
-    }
-}

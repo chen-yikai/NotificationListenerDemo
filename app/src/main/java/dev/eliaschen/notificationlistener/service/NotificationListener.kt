@@ -6,9 +6,9 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.collection.LruCache
 import dagger.hilt.android.AndroidEntryPoint
-import dev.eliaschen.notificationlistener.drawableToBitmap
 import dev.eliaschen.notificationlistener.room.NotificationDao
 import dev.eliaschen.notificationlistener.room.NotificationEntity
+import dev.eliaschen.notificationlistener.util.drawableToBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
