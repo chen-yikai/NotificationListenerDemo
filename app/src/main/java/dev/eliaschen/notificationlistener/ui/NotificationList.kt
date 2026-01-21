@@ -160,7 +160,7 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Image(
+                            Icon(
                                 bitmap = item.icon.asImageBitmap(),
                                 contentDescription = null,
                                 modifier = Modifier.size(30.dp)

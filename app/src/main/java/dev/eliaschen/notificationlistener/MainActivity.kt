@@ -6,11 +6,14 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.AndroidEntryPoint
 import dev.eliaschen.notificationlistener.ui.NotificationList
+import dev.eliaschen.notificationlistener.ui.theme.NotificationListenerDemoTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -24,6 +27,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            NotificationListenerDemoTheme {
                 val context = LocalContext.current
                 LaunchedEffect(Unit) {
                     if (!isNotificationServiceEnabled()) {
@@ -31,6 +35,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 NotificationList()
+            }
         }
     }
 }
