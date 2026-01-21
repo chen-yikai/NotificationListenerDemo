@@ -1,12 +1,15 @@
 package dev.eliaschen.notificationlistener.room
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "notification")
-data class Notification(
+data class NotificationEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val notificationId: Int,
     val title: String,
     val text: String,
     val icon: Bitmap,
