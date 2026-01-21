@@ -45,9 +45,11 @@ class NotificationListener : NotificationListenerService() {
             timestamp = System.currentTimeMillis()
         )
         serviceScope.launch {
-            notificationDao.addNotification(data)
-            Log.i("notification_listener", "New Notification: $title")
-            cancelNotification(sbn.key)
+            if (!sbn.isOngoing) {
+                notificationDao.addNotification(data)
+                Log.i("notification_listener", "New Notification: $title")
+                cancelNotification(sbn.key)
+            }
         }
     }
 }

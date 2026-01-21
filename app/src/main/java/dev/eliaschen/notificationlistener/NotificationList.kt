@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.text.SimpleDateFormat
@@ -38,7 +39,9 @@ import dev.eliaschen.notificationlistener.viewmodels.NotificationViewModel
 fun NotificationList(
     viewModel: NotificationViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val notifications by viewModel.notifications.collectAsStateWithLifecycle()
+
     Scaffold(topBar = {
         Surface(
             modifier = Modifier
@@ -74,6 +77,11 @@ fun NotificationList(
             items(notifications) { item ->
                 Card(
                     modifier = Modifier.padding(vertical = 5.dp),
+                    onClick = {
+                        val intent =
+                            context.packageManager.getLaunchIntentForPackage(item.packageName)
+                        context.startActivity(intent)
+                    }
                 ) {
                     Row(
                         modifier = Modifier
@@ -92,7 +100,7 @@ fun NotificationList(
                             Text(item.text, style = MaterialTheme.typography.bodyMedium)
                         }
                         Text(
-                            text = formatTimestamp(item.timestamp),
+                            text = item.timestamp.toDateTime(),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
@@ -101,9 +109,4 @@ fun NotificationList(
             }
         }
     }
-}
-
-private fun formatTimestamp(timestamp: Long): String {
-    val sdf = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
-    return sdf.format(Date(timestamp))
 }
