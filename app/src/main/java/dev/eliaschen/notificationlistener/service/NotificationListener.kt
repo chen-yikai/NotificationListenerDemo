@@ -1,9 +1,10 @@
-package dev.eliaschen.notificationlistener.services
+package dev.eliaschen.notificationlistener.service
 
 import android.app.Notification
+import android.app.PendingIntent
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import android.util.Log
+import androidx.collection.LruCache
 import dagger.hilt.android.AndroidEntryPoint
 import dev.eliaschen.notificationlistener.drawableToBitmap
 import dev.eliaschen.notificationlistener.room.NotificationDao
@@ -19,12 +20,9 @@ class NotificationListener : NotificationListenerService() {
     @Inject
     lateinit var notificationDao: NotificationDao
 
+    @Inject
+    lateinit var cache: LruCache<Long, PendingIntent>
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
-    override fun onCreate() {
-        super.onCreate()
-        Log.i("notification_listener", "the notification listener service has fire up")
-    }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
@@ -46,8 +44,8 @@ class NotificationListener : NotificationListenerService() {
         )
         serviceScope.launch {
             if (!sbn.isOngoing) {
-                notificationDao.addNotification(data)
-                Log.i("notification_listener", "New Notification: $title")
+                val id = notificationDao.addNotification(data)
+                cache.put(id, sbn.notification.contentIntent)
                 cancelNotification(sbn.key)
             }
         }

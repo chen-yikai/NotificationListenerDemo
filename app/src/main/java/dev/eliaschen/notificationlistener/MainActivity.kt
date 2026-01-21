@@ -10,7 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.AndroidEntryPoint
-import dev.eliaschen.notificationlistener.ui.theme.NotificationListenerTheme
+import dev.eliaschen.notificationlistener.ui.NotificationList
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -24,7 +24,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            NotificationListenerTheme {
                 val context = LocalContext.current
                 LaunchedEffect(Unit) {
                     if (!isNotificationServiceEnabled()) {
@@ -32,7 +31,6 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 NotificationList()
-            }
         }
     }
 }

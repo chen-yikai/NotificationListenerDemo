@@ -1,5 +1,6 @@
-package dev.eliaschen.notificationlistener
+package dev.eliaschen.notificationlistener.ui
 
+import android.app.ActivityOptions
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,16 +30,12 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dev.eliaschen.notificationlistener.viewmodels.NotificationViewModel
+import dev.eliaschen.notificationlistener.toDateTime
+import dev.eliaschen.notificationlistener.viewmodel.NotificationViewModel
 
 @Composable
-fun NotificationList(
-    viewModel: NotificationViewModel = hiltViewModel()
-) {
+fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val notifications by viewModel.notifications.collectAsStateWithLifecycle()
 
@@ -78,9 +75,18 @@ fun NotificationList(
                 Card(
                     modifier = Modifier.padding(vertical = 5.dp),
                     onClick = {
-                        val intent =
-                            context.packageManager.getLaunchIntentForPackage(item.packageName)
-                        context.startActivity(intent)
+                        val pendingIntent = viewModel.cache[item.id]
+                        if (pendingIntent !== null) {
+                            val options = ActivityOptions.makeBasic().apply {
+                                pendingIntentBackgroundActivityStartMode =
+                                    ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                            }
+                            pendingIntent.send(options.toBundle())
+                        } else {
+                            val intent =
+                                context.packageManager.getLaunchIntentForPackage(item.packageName)
+                            context.startActivity(intent)
+                        }
                     }
                 ) {
                     Row(

@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotificationDao {
-    @Query("SELECT * FROM notification")
+    @Query("SELECT * FROM notification ORDER BY timestamp DESC")
     fun getAllNotifications(): Flow<List<NotificationEntity>>
 
     @Insert
-    suspend fun addNotification(notification: NotificationEntity)
+    suspend fun addNotification(notification: NotificationEntity): Long
 
     @Delete
     suspend fun deleteNotification(notification: NotificationEntity)
