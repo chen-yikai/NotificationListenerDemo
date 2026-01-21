@@ -1,6 +1,5 @@
 package dev.eliaschen.notificationlistener.room
 
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.room.TypeConverter
@@ -18,15 +17,4 @@ class RoomTypeConverters {
     fun toBitmap(byteArray: ByteArray): Bitmap {
         return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
-
-    @TypeConverter
-    fun fromIntent(intent: Intent): String {
-        return intent.toUri(Intent.URI_INTENT_SCHEME)
-    }
-
-    @TypeConverter
-    fun toIntent(uri: String): Intent {
-        return Intent.parseUri(uri, Intent.URI_INTENT_SCHEME)
-    }
-
 }
