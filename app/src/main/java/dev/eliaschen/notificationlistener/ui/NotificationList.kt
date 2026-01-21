@@ -42,6 +42,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -166,7 +167,11 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                                 modifier = Modifier.size(30.dp)
                             )
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(item.title, style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    item.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
                                 Text(item.text, style = MaterialTheme.typography.bodyMedium)
                             }
                             Text(
