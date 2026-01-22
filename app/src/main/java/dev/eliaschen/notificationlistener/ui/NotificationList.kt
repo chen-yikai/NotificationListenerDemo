@@ -1,7 +1,11 @@
 package dev.eliaschen.notificationlistener.ui
 
 import android.app.ActivityOptions
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -10,6 +14,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,16 +45,21 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
     val archivedNotifications by viewModel.archivedNotifications.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedTab by remember { mutableStateOf(NotificationTab.entries.first()) }
+    val notifications =
+        if (selectedTab == NotificationTab.Active) activeNotification else archivedNotifications
 
     Scaffold(
-        topBar = { NotificationListTopBar() },
-        bottomBar = {
-            ListStatusTabRow(selectedTab) {
+        topBar = {
+            ListStatusTabRow(
+                selectedTab, modifier = Modifier
+                    .statusBarsPadding()
+                    .padding(vertical = 10.dp, horizontal = 20.dp)
+            ) {
                 selectedTab = it
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
-        if (activeNotification.isEmpty()) {
+        if (notifications.isEmpty()) {
             EmptyNotificationState(selectedTab)
         }
         LazyColumn(
@@ -61,7 +71,7 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
             )
         ) {
             items(
-                if (selectedTab == NotificationTab.Active) activeNotification else archivedNotifications,
+                notifications,
                 key = { it.id }) { item ->
                 SwipeableNotificationItem(
                     item = item,
