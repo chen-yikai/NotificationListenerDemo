@@ -11,9 +11,18 @@ interface NotificationDao {
     @Query("SELECT * FROM notification ORDER BY timestamp DESC")
     fun getAllNotifications(): Flow<List<NotificationEntity>>
 
+    @Query("SELECT * FROM notification WHERE archived = 1")
+    fun getArchivedNotifications(): Flow<List<NotificationEntity>>
+
+    @Query("SELECT * FROM notification WHERE archived = 0")
+    fun getActiveNotifications(): Flow<List<NotificationEntity>>
+
     @Insert
     suspend fun addNotification(notification: NotificationEntity): Long
 
     @Delete
     suspend fun deleteNotification(notification: NotificationEntity)
+
+    @Query("UPDATE notification SET archived = 1 WHERE id = :id")
+    suspend fun archiveNotification(id: Long)
 }

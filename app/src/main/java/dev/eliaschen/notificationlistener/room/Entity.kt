@@ -14,5 +14,6 @@ data class NotificationEntity(
     val text: String,
     val icon: Bitmap,
     val packageName: String,
-    val timestamp: Long
+    val timestamp: Long,
+    val archived: Boolean = false
 )

@@ -59,7 +59,7 @@ dependencies {
     // Lifecycle
     implementation(libs.androidx.viewmodel.lifecycle.compose)
     // Icon
-    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
     // Default
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

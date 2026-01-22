@@ -13,10 +13,11 @@ room = "2.8.4"
 hilt = "2.59"
 lifecycle = "2.10.0"
 hiltNavigationCompose = "1.2.0"
+androidx-icons = "1.7.8"
 
 [libraries]
-androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
-androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "androidx-icons" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "androidx-icons" }
 androidx-viewmodel-lifecycle-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }

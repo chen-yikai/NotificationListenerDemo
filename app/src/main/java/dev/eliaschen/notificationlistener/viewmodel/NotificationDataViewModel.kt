@@ -10,7 +10,6 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.IconCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dev.eliaschen.notificationlistener.notification_label_channel
 import dev.eliaschen.notificationlistener.notification_repost_channel
 import dev.eliaschen.notificationlistener.room.NotificationDao
 import dev.eliaschen.notificationlistener.room.NotificationEntity
@@ -27,7 +26,7 @@ class NotificationViewModel @Inject constructor(
     private val notifyManager: NotificationManager,
     @ApplicationContext private val appContext: Context
 ) : ViewModel() {
-    val notifications: StateFlow<List<NotificationEntity>> = db.getAllNotifications().stateIn(
+    val notifications: StateFlow<List<NotificationEntity>> = db.getActiveNotifications().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
@@ -52,6 +51,12 @@ class NotificationViewModel @Inject constructor(
             val pendingIntent = cache[notification.id]
             if (pendingIntent != null) builder.setContentIntent(pendingIntent)
             notifyManager.notify(notification.id.toInt(), builder.build())
+        }
+    }
+
+    fun archiveNotification(id: Long) {
+        viewModelScope.launch {
+            db.archiveNotification(id)
         }
     }
 }
