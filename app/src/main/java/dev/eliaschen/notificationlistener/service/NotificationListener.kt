@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.collection.LruCache
@@ -39,10 +40,20 @@ class NotificationListener : NotificationListenerService() {
     lateinit var appContext: Context
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var lastNotification: Notification? = null
 
     override fun onCreate() {
         super.onCreate()
         observeNotificationCount()
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification) {
+        super.onNotificationRemoved(sbn)
+        if (sbn.id == 1001 && sbn.packageName == packageName) {
+            lastNotification?.let { notification ->
+                startForeground(1001, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            }
+        }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
@@ -97,12 +108,13 @@ class NotificationListener : NotificationListenerService() {
                         .setNumber(notificationCount)
                         .setContentIntent(pendingIntent)
                         .setOngoing(true)
-                        .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                        .setAutoCancel(false)
                         .build()
+                lastNotification = notification
                 startForeground(
                     1001,
                     notification,
-                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
                 )
             }
         }
