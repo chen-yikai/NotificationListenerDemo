@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,14 +23,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SwipeDismissBackground(dismissState: SwipeToDismissBoxState) {
+fun SwipeDismissBackground(dismissState: SwipeToDismissBoxState, isDelete: Boolean) {
     val target = dismissState.targetValue
-    val isDelete = target == SwipeToDismissBoxValue.EndToStart
+    val isArchiveOrDelete = target == SwipeToDismissBoxValue.EndToStart
     val isRepost = target == SwipeToDismissBoxValue.StartToEnd
-    val scale by animateFloatAsState(targetValue = if (isDelete || isRepost) 1.3f else 1f)
+    val scale by animateFloatAsState(targetValue = if (isArchiveOrDelete || isRepost) 1.3f else 1f)
     val color by animateColorAsState(
         targetValue = when {
-            isDelete -> MaterialTheme.colorScheme.tertiaryContainer
+            isArchiveOrDelete -> if (isDelete) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiaryContainer
             isRepost -> MaterialTheme.colorScheme.primaryContainer
             else -> MaterialTheme.colorScheme.surfaceContainer
         }
@@ -45,7 +46,7 @@ fun SwipeDismissBackground(dismissState: SwipeToDismissBoxState) {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            if (!isDelete) {
+            if (!isArchiveOrDelete) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
@@ -54,7 +55,7 @@ fun SwipeDismissBackground(dismissState: SwipeToDismissBoxState) {
                 ) {
                     Icon(
                         imageVector = Icons.Default.Notifications,
-                        contentDescription = "Repost",
+                        contentDescription = "Repost Notification",
                         modifier = Modifier.scale(scale)
                     )
                 }
@@ -67,8 +68,8 @@ fun SwipeDismissBackground(dismissState: SwipeToDismissBoxState) {
                         .padding(20.dp), contentAlignment = Alignment.CenterEnd
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Archive,
-                        contentDescription = "Delete",
+                        imageVector = if (isDelete) Icons.Default.Delete else Icons.Default.Archive,
+                        contentDescription = if (isDelete) "Delete" else "Archive",
                         modifier = Modifier.scale(scale)
                     )
                 }
