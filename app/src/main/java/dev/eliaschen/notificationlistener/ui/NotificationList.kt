@@ -3,6 +3,7 @@ package dev.eliaschen.notificationlistener.ui
 import android.app.ActivityOptions
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -128,7 +129,7 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                             targetValue = when {
                                 isDelete -> MaterialTheme.colorScheme.error
                                 isRepost -> MaterialTheme.colorScheme.primaryContainer
-                                else -> MaterialTheme.colorScheme.surfaceVariant
+                                else -> MaterialTheme.colorScheme.surfaceContainer
                             }
                         )
 
@@ -139,11 +140,14 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                             color = color,
                             shape = RoundedCornerShape(10.dp)
                         ) {
-                            Box(modifier = Modifier.fillMaxSize()) {
+                            Box(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
                                 if (!isDelete) {
                                     Box(
                                         modifier = Modifier
                                             .align(Alignment.CenterStart)
+                                            .fillMaxSize()
                                             .padding(20.dp)
                                     ) {
                                         Icon(
@@ -157,7 +161,8 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                                     Box(
                                         modifier = Modifier
                                             .align(Alignment.CenterEnd)
-                                            .padding(20.dp)
+                                            .fillMaxSize()
+                                            .padding(20.dp), contentAlignment = Alignment.CenterEnd
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
