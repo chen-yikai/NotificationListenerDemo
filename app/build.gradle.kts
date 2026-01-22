@@ -60,6 +60,8 @@ dependencies {
     implementation(libs.androidx.viewmodel.lifecycle.compose)
     // Icon
     implementation(libs.androidx.material.icons.extended)
+    // AI
+    implementation(libs.mlkit.genai.prompt)
     // Default
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

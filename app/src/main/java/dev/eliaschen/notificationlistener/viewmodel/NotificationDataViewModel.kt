@@ -11,8 +11,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.graphics.drawable.IconCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.eliaschen.notificationlistener.notification_repost_channel
-import dev.eliaschen.notificationlistener.room.NotificationDao
-import dev.eliaschen.notificationlistener.room.NotificationEntity
+import dev.eliaschen.notificationlistener.room.dao.NotificationDao
+import dev.eliaschen.notificationlistener.room.table.NotificationEntity
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn

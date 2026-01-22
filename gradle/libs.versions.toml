@@ -14,8 +14,12 @@ hilt = "2.59"
 lifecycle = "2.10.0"
 hiltNavigationCompose = "1.2.0"
 androidx-icons = "1.7.8"
+mlkit-genai = "1.0.0-alpha1"
+mlkit-summarization = "1.0.0-beta1"
 
 [libraries]
+mlkit-genai-prompt = { group = "com.google.mlkit", name = "genai-prompt", version.ref = "mlkit-genai" }
+mlkit-genai-summarization = { group = "com.google.mlkit", name = "genai-summarization", version.ref = "mlkit-summarization" }
 androidx-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "androidx-icons" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "androidx-icons" }
 androidx-viewmodel-lifecycle-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }

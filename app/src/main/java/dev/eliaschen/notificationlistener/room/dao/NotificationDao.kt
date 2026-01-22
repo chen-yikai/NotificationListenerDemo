@@ -1,9 +1,10 @@
-package dev.eliaschen.notificationlistener.room
+package dev.eliaschen.notificationlistener.room.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import dev.eliaschen.notificationlistener.room.table.NotificationEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

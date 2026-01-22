@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import dev.eliaschen.notificationlistener.room.NotificationEntity
+import dev.eliaschen.notificationlistener.room.table.NotificationEntity
 import dev.eliaschen.notificationlistener.util.toDateTime
 
 @Composable

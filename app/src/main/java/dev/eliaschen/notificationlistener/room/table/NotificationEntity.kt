@@ -1,7 +1,5 @@
-package dev.eliaschen.notificationlistener.room
+package dev.eliaschen.notificationlistener.room.table
 
-import android.app.PendingIntent
-import android.content.Intent
 import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey

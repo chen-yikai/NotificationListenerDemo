@@ -14,8 +14,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dev.eliaschen.notificationlistener.MainActivity
 import dev.eliaschen.notificationlistener.notification_label_channel
-import dev.eliaschen.notificationlistener.room.NotificationDao
-import dev.eliaschen.notificationlistener.room.NotificationEntity
+import dev.eliaschen.notificationlistener.room.dao.NotificationDao
+import dev.eliaschen.notificationlistener.room.table.NotificationEntity
 import dev.eliaschen.notificationlistener.util.createNotificationIcon
 import dev.eliaschen.notificationlistener.util.drawableToBitmap
 import kotlinx.coroutines.CoroutineScope
