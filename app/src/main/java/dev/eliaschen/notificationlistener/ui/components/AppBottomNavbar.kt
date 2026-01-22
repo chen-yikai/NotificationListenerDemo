@@ -39,16 +39,18 @@ fun AppBottomNavbar() {
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(10.dp), contentAlignment = Alignment.Center
+            .padding(10.dp),
+        contentAlignment = Alignment.Center
     ) {
         Card(
             border = CardDefaults.outlinedCardBorder(),
+            shape = CircleShape,
             elevation = CardDefaults.outlinedCardElevation(5.dp)
         ) {
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 10.dp, vertical = 5.dp)
-                    .width(230.dp),
+                    .padding(horizontal = 5.dp, vertical = 5.dp)
+                    .width(240.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -63,18 +65,17 @@ fun AppBottomNavbar() {
 
 @Composable
 private fun NavButton(item: BottomNav) {
-    Column(
-        modifier = Modifier
-            .clip(CircleShape)
-            .clickable {}
-            .padding(horizontal = 15.dp, vertical = 5.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(modifier = Modifier
+        .clip(CircleShape)
+        .clickable {}
+        .padding(horizontal = 15.dp, vertical = 5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(item.icon, contentDescription = item.label)
         Text(
             item.label,
             style = MaterialTheme.typography.labelSmall,
-            fontFamily = notoSerif, fontSize = 10.sp
+            fontFamily = notoSerif,
+            fontSize = 10.sp
         )
     }
 }
@@ -84,9 +85,10 @@ fun SpotlightActionButton(modifier: Modifier = Modifier) {
     var active by remember { mutableStateOf(false) }
     val rotate by animateFloatAsState(targetValue = if (active) 45f else 0f)
 
-    Box(modifier
-        .clip(CircleShape)
-        .clickable { active = !active }) {
+    Box(
+        modifier
+            .clip(CircleShape)
+            .clickable { active = !active }) {
         Icon(
             Icons.Rounded.Add,
             contentDescription = "Add",
