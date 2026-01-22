@@ -21,7 +21,7 @@ val notoSerif = FontFamily(
     Font(resId = R.font.noto_serif, weight = FontWeight.Bold),
 )
 val defaultTypography = Typography()
-val typography = Typography(
+val Typography = Typography(
     displayLarge = defaultTypography.displayLarge.copy(fontFamily = notoSerif),
     displayMedium = defaultTypography.displayMedium.copy(fontFamily = notoSerif),
     displaySmall = defaultTypography.displaySmall.copy(fontFamily = notoSerif),
@@ -55,7 +55,7 @@ fun NotificationListenerDemoTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = typography,
+        typography = Typography,
         content = content
     )
 }

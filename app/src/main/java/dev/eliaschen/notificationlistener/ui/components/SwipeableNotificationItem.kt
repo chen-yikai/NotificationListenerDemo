@@ -30,7 +30,10 @@ fun SwipeableNotificationItem(
             when (value) {
                 SwipeToDismissBoxValue.EndToStart -> {
                     viewModel.archiveNotification(item.id)
-                    scope.launch { snackbarHostState.showSnackbar("A notification has been archived") }
+                    scope.launch {
+                        dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+                        snackbarHostState.showSnackbar("A notification has been archived")
+                    }
                 }
 
                 SwipeToDismissBoxValue.StartToEnd -> {

@@ -1,6 +1,5 @@
 package dev.eliaschen.notificationlistener.ui.components
 
-import android.app.ActivityOptions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,11 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.eliaschen.notificationlistener.room.NotificationEntity
-import dev.eliaschen.notificationlistener.util.launchPackage
 import dev.eliaschen.notificationlistener.util.toDateTime
 
 @Composable

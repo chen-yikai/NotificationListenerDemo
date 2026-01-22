@@ -26,7 +26,12 @@ class NotificationViewModel @Inject constructor(
     private val notifyManager: NotificationManager,
     @ApplicationContext private val appContext: Context
 ) : ViewModel() {
-    val notifications: StateFlow<List<NotificationEntity>> = db.getActiveNotifications().stateIn(
+    val activeNotifications: StateFlow<List<NotificationEntity>> = db.getActiveNotifications().stateIn(
+        viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+    val archivedNotifications: StateFlow<List<NotificationEntity>> = db.getArchivedNotifications().stateIn(
         viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()

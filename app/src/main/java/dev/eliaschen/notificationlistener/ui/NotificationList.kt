@@ -2,15 +2,31 @@ package dev.eliaschen.notificationlistener.ui
 
 import android.app.ActivityOptions
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -18,32 +34,64 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.eliaschen.notificationlistener.ui.components.EmptyNotificationState
 import dev.eliaschen.notificationlistener.ui.components.NotificationListTopBar
 import dev.eliaschen.notificationlistener.ui.components.SwipeableNotificationItem
+import dev.eliaschen.notificationlistener.ui.theme.notoSerif
 import dev.eliaschen.notificationlistener.util.launchPackage
 import dev.eliaschen.notificationlistener.viewmodel.NotificationViewModel
+
+enum class NotificationTab(val label: String, val icon: ImageVector) {
+    Active("Active", Icons.Default.Notifications),
+    Archived("Archived", Icons.Default.History)
+}
 
 @Composable
 fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
     val context = LocalContext.current
-    val notifications by viewModel.notifications.collectAsStateWithLifecycle()
+    val activeNotification by viewModel.activeNotifications.collectAsStateWithLifecycle()
+    val archivedNotifications by viewModel.archivedNotifications.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    var selectedTab by remember { mutableStateOf(NotificationTab.entries.first()) }
 
     Scaffold(
         topBar = { NotificationListTopBar() },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { innerPadding ->
-        if (notifications.isEmpty()) {
-            EmptyNotificationState()
+        bottomBar = {
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 30.dp)
+                    .navigationBarsPadding()
+            ) {
+                NotificationTab.entries.forEachIndexed { index, item ->
+                    SegmentedButton(
+                        selected = selectedTab == item,
+                        onClick = { selectedTab = item },
+                        colors = SegmentedButtonDefaults.colors(inactiveContainerColor = MaterialTheme.colorScheme.background),
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index, NotificationTab.entries.size, RoundedCornerShape(10.dp)
+                        ),
+                        icon = {
+                            Icon(item.icon, contentDescription = item.label)
+                        }
+                    ) {
+                        Text(item.label, fontFamily = notoSerif)
+                    }
+                }
+            }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+        if (activeNotification.isEmpty()) {
+            EmptyNotificationState(selectedTab)
         }
         LazyColumn(
-            modifier = Modifier,
-            contentPadding = PaddingValues(
+            modifier = Modifier, contentPadding = PaddingValues(
                 start = 20.dp,
                 end = 20.dp,
                 top = innerPadding.calculateTopPadding(),
                 bottom = innerPadding.calculateBottomPadding()
             )
         ) {
-            items(notifications, key = { it.id }) { item ->
+            items(
+                if (selectedTab == NotificationTab.Active) activeNotification else archivedNotifications,
+                key = { it.id }) { item ->
                 SwipeableNotificationItem(
                     item = item,
                     viewModel = viewModel,
@@ -63,8 +111,7 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                         } catch (e: Exception) {
                             launchPackage(context, clickedItem.packageName)
                         }
-                    }
-                )
+                    })
             }
         }
     }

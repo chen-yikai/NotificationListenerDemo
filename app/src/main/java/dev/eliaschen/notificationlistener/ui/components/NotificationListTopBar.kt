@@ -20,7 +20,7 @@ fun NotificationListTopBar() {
         modifier = Modifier
             .statusBarsPadding()
             .padding(horizontal = 15.dp)
-            .padding(bottom = 20.dp)
+            .padding(bottom = 10.dp)
             .padding(top = 15.dp),
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
