@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.SwipeToDismissBox
 import dev.eliaschen.notificationlistener.room.table.NotificationEntity
-import dev.eliaschen.notificationlistener.ui.NotificationTab
+import dev.eliaschen.notificationlistener.util.NotificationTab
 import dev.eliaschen.notificationlistener.viewmodel.NotificationViewModel
 import kotlinx.coroutines.launch
 

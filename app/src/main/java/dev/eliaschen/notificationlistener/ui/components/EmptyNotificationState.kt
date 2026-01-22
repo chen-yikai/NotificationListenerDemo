@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import dev.eliaschen.notificationlistener.ui.NotificationTab
+import dev.eliaschen.notificationlistener.util.NotificationTab
 
 @Composable
 fun EmptyNotificationState(selectedTab: NotificationTab) {

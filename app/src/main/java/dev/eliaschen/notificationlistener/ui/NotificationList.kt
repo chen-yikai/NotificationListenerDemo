@@ -1,9 +1,7 @@
 package dev.eliaschen.notificationlistener.ui
 
 import android.app.ActivityOptions
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,7 +12,6 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,16 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.eliaschen.notificationlistener.ui.components.EmptyNotificationState
-import dev.eliaschen.notificationlistener.ui.components.ListStatusTabRow
-import dev.eliaschen.notificationlistener.ui.components.NotificationListTopBar
+import dev.eliaschen.notificationlistener.ui.components.SingleChooseTabRow
 import dev.eliaschen.notificationlistener.ui.components.SwipeableNotificationItem
+import dev.eliaschen.notificationlistener.util.NotificationTab
 import dev.eliaschen.notificationlistener.util.launchPackage
 import dev.eliaschen.notificationlistener.viewmodel.NotificationViewModel
 
-enum class NotificationTab(val label: String, val icon: ImageVector) {
-    Active("Active", Icons.Default.Notifications),
-    History("History", Icons.Default.History)
-}
 
 @Composable
 fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
@@ -50,7 +43,7 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
 
     Scaffold(
         topBar = {
-            ListStatusTabRow(
+            SingleChooseTabRow(
                 selectedTab, modifier = Modifier
                     .statusBarsPadding()
                     .padding(vertical = 10.dp, horizontal = 20.dp)

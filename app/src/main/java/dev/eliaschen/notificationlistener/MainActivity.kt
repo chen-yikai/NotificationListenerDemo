@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.AndroidEntryPoint
+import dev.eliaschen.notificationlistener.ui.NavScreen
 import dev.eliaschen.notificationlistener.ui.NotificationList
 import dev.eliaschen.notificationlistener.ui.theme.NotificationListenerDemoTheme
 
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
                         permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                     }
                 }
-                NotificationList()
+                NavScreen()
             }
         }
     }
