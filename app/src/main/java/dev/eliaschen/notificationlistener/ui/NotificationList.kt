@@ -2,11 +2,7 @@ package dev.eliaschen.notificationlistener.ui
 
 import android.app.ActivityOptions
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.EaseInCirc
-import androidx.compose.animation.core.EaseInOutBounce
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -98,27 +95,41 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
         ) {
             items(notifications, key = { it.id }) { item ->
                 val dismissState = rememberSwipeToDismissBoxState(
-                    positionalThreshold = { totalDistance -> totalDistance * 0.9f }
+                    positionalThreshold = { totalDistance -> totalDistance * 0.9f },
                 )
                 SwipeToDismissBox(
                     state = dismissState,
                     enableDismissFromEndToStart = true,
-                    enableDismissFromStartToEnd = false,
-                    onDismiss = {
-                        viewModel.deleteNotification(item)
-                        scope.launch {
-                            snackbarHostState.showSnackbar("A notification has been deleted")
+                    enableDismissFromStartToEnd = true,
+                    onDismiss = { value ->
+                        when (value) {
+                            SwipeToDismissBoxValue.EndToStart -> {
+                                viewModel.deleteNotification(item)
+                                scope.launch { snackbarHostState.showSnackbar("A notification has been deleted") }
+                            }
+
+                            SwipeToDismissBoxValue.StartToEnd -> {
+                                viewModel.repostNotification(item)
+                                scope.launch {
+                                    dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+                                    snackbarHostState.showSnackbar("Reposted to notification center")
+                                }
+                            }
+
+                            else -> false
                         }
                     },
                     backgroundContent = {
-                        val almostThere =
-                            dismissState.targetValue == SwipeToDismissBoxValue.EndToStart
-                        val scale by animateFloatAsState(
-                            targetValue = if (almostThere) 1.3f else 1f
-                        )
+                        val target = dismissState.targetValue
+                        val isDelete = target == SwipeToDismissBoxValue.EndToStart
+                        val isRepost = target == SwipeToDismissBoxValue.StartToEnd
+                        val scale by animateFloatAsState(targetValue = if (isDelete || isRepost) 1.3f else 1f)
                         val color by animateColorAsState(
-                            targetValue = if (almostThere) MaterialTheme.colorScheme.error
-                            else MaterialTheme.colorScheme.errorContainer
+                            targetValue = when {
+                                isDelete -> MaterialTheme.colorScheme.error
+                                isRepost -> MaterialTheme.colorScheme.primaryContainer
+                                else -> MaterialTheme.colorScheme.surfaceVariant
+                            }
                         )
 
                         Surface(
@@ -128,15 +139,33 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                             color = color,
                             shape = RoundedCornerShape(10.dp)
                         ) {
-                            Box(
-                                contentAlignment = Alignment.CenterEnd,
-                                modifier = Modifier.padding(20.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = "Delete",
-                                    modifier = Modifier.scale(scale)
-                                )
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                if (!isDelete) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.CenterStart)
+                                            .padding(20.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Notifications,
+                                            contentDescription = "Repost",
+                                            modifier = Modifier.scale(scale)
+                                        )
+                                    }
+                                }
+                                if (!isRepost) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.CenterEnd)
+                                            .padding(20.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete",
+                                            modifier = Modifier.scale(scale)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }) {

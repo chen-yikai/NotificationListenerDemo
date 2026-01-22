@@ -8,6 +8,7 @@ import android.content.Context
 import dagger.hilt.android.HiltAndroidApp
 
 const val notification_label_channel = "notification_label_channel"
+const val notification_repost_channel = "notification_repost_channel"
 
 @HiltAndroidApp
 class Application : Application() {
@@ -18,8 +19,8 @@ class Application : Application() {
 
     private fun createNotificationChannel() {
         val manager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channel = NotificationChannel(
-            notification_label_channel, "Notification Label Channel",
+        val label = NotificationChannel(
+            notification_label_channel, "Notification Label",
             NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             setShowBadge(false)
@@ -27,6 +28,10 @@ class Application : Application() {
             setSound(null, null)
             enableVibration(false)
         }
-        manager.createNotificationChannel(channel)
+        val repost = NotificationChannel(
+            notification_repost_channel, "Notification Repost",
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
+        manager.createNotificationChannels(listOf(label, repost))
     }
 }

@@ -50,14 +50,13 @@ class NotificationListener : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification) {
         super.onNotificationRemoved(sbn)
         if (sbn.id == 1001 && sbn.packageName == packageName) {
-            lastNotification?.let { notification ->
-                startForeground(1001, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-            }
+            observeNotificationCount()
         }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
+        if (sbn.packageName == packageName) return
         val notification = sbn.notification
         val extra = notification.extras
         val smallIcon = notification.smallIcon
@@ -109,6 +108,9 @@ class NotificationListener : NotificationListenerService() {
                         .setContentIntent(pendingIntent)
                         .setOngoing(true)
                         .setAutoCancel(false)
+                        .setSound(null)
+                        .setVibrate(null)
+                        .setSilent(true)
                         .build()
                 lastNotification = notification
                 startForeground(
