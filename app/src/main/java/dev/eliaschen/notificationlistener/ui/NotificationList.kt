@@ -2,7 +2,10 @@ package dev.eliaschen.notificationlistener.ui
 
 import android.app.ActivityOptions
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.EaseInCirc
+import androidx.compose.animation.core.EaseInOutBounce
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
