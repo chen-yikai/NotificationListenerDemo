@@ -3,19 +3,23 @@ package dev.eliaschen.notificationlistener.service
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.collection.LruCache
 import androidx.core.app.NotificationCompat
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dev.eliaschen.notificationlistener.MainActivity
 import dev.eliaschen.notificationlistener.notification_label_channel
 import dev.eliaschen.notificationlistener.room.NotificationDao
 import dev.eliaschen.notificationlistener.room.NotificationEntity
+import dev.eliaschen.notificationlistener.util.createNotificationIcon
 import dev.eliaschen.notificationlistener.util.drawableToBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,15 +33,16 @@ class NotificationListener : NotificationListenerService() {
 
     @Inject
     lateinit var notifyManager: NotificationManager
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private var notificationCount = 0
 
-    companion object {
-        var notificationCount = 0
-    }
+    @Inject
+    @ApplicationContext
+    lateinit var appContext: Context
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
+        observeNotificationCount()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
@@ -67,17 +72,39 @@ class NotificationListener : NotificationListenerService() {
         }
     }
 
-    private fun displayStatusNotification() {
+    private fun observeNotificationCount() {
         serviceScope.launch {
-            notificationCount = notificationDao.getAllNotifications().count()
+            notificationDao.getAllNotifications().collect { notifications ->
+                val notificationCount = notifications.size
+                val intent = Intent(this@NotificationListener, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                }
+                val pendingIntent = PendingIntent.getActivity(
+                    this@NotificationListener,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                val icon = createNotificationIcon(appContext, notificationCount)
+                val notification =
+                    NotificationCompat.Builder(
+                        this@NotificationListener,
+                        notification_label_channel
+                    )
+                        .setSmallIcon(icon)
+                        .setContentTitle(if (notificationCount > 0) ("$notificationCount ${if (notificationCount == 1) "Notification" else "Notifications"}") else "You don't have any notification yet")
+                        .setContentText("Tap to see them")
+                        .setNumber(notificationCount)
+                        .setContentIntent(pendingIntent)
+                        .setOngoing(true)
+                        .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                        .build()
+                startForeground(
+                    1001,
+                    notification,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                )
+            }
         }
-        val builder = NotificationCompat.Builder(this, notification_label_channel)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Active Notifications")
-            .setContentText("You have $notificationCount active notifications")
-            .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOnlyAlertOnce(true).build()
-        notifyManager.notify(1001, builder)
     }
 }
