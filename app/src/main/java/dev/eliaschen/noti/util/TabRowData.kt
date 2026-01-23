@@ -34,3 +34,12 @@ enum class BottomNav(
     Task("Notification", Icons.Rounded.Notifications, Screen.Notification),
     Memo("Reminder", Icons.Rounded.TaskAlt, Screen.Reminder)
 }
+
+enum class SpotlightAction(
+    override val label: String,
+    override val icon: ImageVector,
+    action: () -> Unit
+) : TabRowData {
+    Task("Task", Icons.Rounded.TaskAlt, {}),
+    Memo("Memo", Icons.Rounded.StickyNote2, {})
+}

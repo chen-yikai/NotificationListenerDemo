@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
@@ -25,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,16 +39,18 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.eliaschen.noti.ui.Screen
 import dev.eliaschen.noti.util.BottomNav
 import dev.eliaschen.noti.util.LocalNavStack
+import dev.eliaschen.noti.util.SpotlightAction
 
 @Composable
 fun AppBottomNavbar() {
     val density = LocalDensity.current
-    var navButtonOffsetX by remember { mutableStateOf(0f) }
+    var navButtonOffsetX by remember { mutableFloatStateOf(0f) }
     val navStack = LocalNavStack.current
     val navIndicatorOffsetX by animateDpAsState(
         targetValue = if (navStack.last() == Screen.Reminder) with(density) { navButtonOffsetX.toDp() } else 0.dp,
@@ -55,6 +59,7 @@ fun AppBottomNavbar() {
             stiffness = 200f
         ), label = "nav indicator offsetX"
     )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,7 +127,7 @@ private fun NavButton(item: BottomNav, onPositioned: (Float) -> Unit) {
 }
 
 @Composable
-fun SpotlightActionButton(modifier: Modifier = Modifier) {
+private fun SpotlightActionButton(modifier: Modifier = Modifier) {
     var active by remember { mutableStateOf(false) }
     val rotate by animateFloatAsState(
         targetValue = if (active) 45f else 0f,
@@ -141,5 +146,32 @@ fun SpotlightActionButton(modifier: Modifier = Modifier) {
                 .size(40.dp)
                 .rotate(rotate)
         )
+    }
+}
+
+@Composable
+private fun ActionButton(item: SpotlightAction) {
+    Card(
+        shape = CircleShape,
+        border = CardDefaults.outlinedCardBorder(),
+        elevation = CardDefaults.elevatedCardElevation(10.dp),
+        modifier = Modifier.size(60.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()
+        ) {
+            Icon(item.icon, contentDescription = item.label)
+            Text(item.label, style = MaterialTheme.typography.labelSmall)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewActionButton() {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        ActionButton(SpotlightAction.Task)
+        ActionButton(SpotlightAction.Memo)
     }
 }
