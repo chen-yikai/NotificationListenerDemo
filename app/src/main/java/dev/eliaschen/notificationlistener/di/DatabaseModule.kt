@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.eliaschen.notificationlistener.room.AppDatabase
 import dev.eliaschen.notificationlistener.room.dao.NotificationDao
+import dev.eliaschen.notificationlistener.room.dao.TodoDao
 import javax.inject.Singleton
 
 @Module
@@ -27,5 +28,9 @@ object DatabaseModule {
     @Provides
     fun provideNotificationDao(db: AppDatabase): NotificationDao {
         return db.notificationDao()
+    }
+    @Provides
+    fun provideTodoDao(db: AppDatabase): TodoDao{
+        return db.todoDao()
     }
 }

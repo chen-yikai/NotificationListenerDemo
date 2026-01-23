@@ -30,6 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -49,7 +51,7 @@ fun AppBottomNavbar() {
     val navIndicatorOffsetX by animateDpAsState(
         targetValue = if (navStack.last() == Screen.Reminder) with(density) { navButtonOffsetX.toDp() } else 0.dp,
         animationSpec = spring(
-            dampingRatio = 0.8f,
+            dampingRatio = 0.7f,
             stiffness = 300f
         ), label = "nav indicator offsetX"
     )

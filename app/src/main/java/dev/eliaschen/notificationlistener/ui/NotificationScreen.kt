@@ -32,7 +32,6 @@ fun NotificationScreen(
     viewModel: NotificationViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val snackbarHostState = LocalSnackBarHostState.current
     val activeNotification by viewModel.activeNotifications.collectAsStateWithLifecycle()
     val archivedNotifications by viewModel.archivedNotifications.collectAsStateWithLifecycle()
     var selectedTab by remember { mutableStateOf(NotificationTab.entries.first()) }
