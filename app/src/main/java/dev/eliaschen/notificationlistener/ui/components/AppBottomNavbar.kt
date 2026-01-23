@@ -51,8 +51,8 @@ fun AppBottomNavbar() {
     val navIndicatorOffsetX by animateDpAsState(
         targetValue = if (navStack.last() == Screen.Reminder) with(density) { navButtonOffsetX.toDp() } else 0.dp,
         animationSpec = spring(
-            dampingRatio = 0.7f,
-            stiffness = 300f
+            dampingRatio = 0.8f,
+            stiffness = 200f
         ), label = "nav indicator offsetX"
     )
     Box(

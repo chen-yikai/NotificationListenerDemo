@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/notification_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.NotificationListener">
+        <uses-library android:name="com.google.android.aicore" android:required="false" />
         <service
             android:name=".service.NotificationListener"
             android:exported="true"
