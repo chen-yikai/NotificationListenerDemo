@@ -7,6 +7,8 @@ import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.StickyNote2
 import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation3.runtime.NavKey
+import dev.eliaschen.notificationlistener.ui.Screen
 
 interface TabRowData {
     val label: String
@@ -27,9 +29,8 @@ enum class ReminderTab(override val label: String, override val icon: ImageVecto
 enum class BottomNav(
     override val label: String,
     override val icon: ImageVector,
-    val spotlight: Boolean = false
+    val route: NavKey
 ) : TabRowData {
-    Task("Notification", Icons.Rounded.Notifications),
-//    Action("Action", Icons.Rounded.Add, true),
-    Memo("Reminder", Icons.Rounded.TaskAlt)
+    Task("Notification", Icons.Rounded.Notifications, Screen.Notification),
+    Memo("Reminder", Icons.Rounded.TaskAlt, Screen.Reminder)
 }

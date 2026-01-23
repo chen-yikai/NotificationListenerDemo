@@ -6,11 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,7 +14,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,17 +21,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.eliaschen.notificationlistener.ui.components.EmptyNotificationState
 import dev.eliaschen.notificationlistener.ui.components.SingleChooseTabRow
 import dev.eliaschen.notificationlistener.ui.components.SwipeableNotificationItem
+import dev.eliaschen.notificationlistener.util.LocalSnackBarHostState
 import dev.eliaschen.notificationlistener.util.NotificationTab
 import dev.eliaschen.notificationlistener.util.launchPackage
 import dev.eliaschen.notificationlistener.viewmodel.NotificationViewModel
 
 
 @Composable
-fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
+fun NotificationScreen(
+    viewModel: NotificationViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
+    val snackbarHostState = LocalSnackBarHostState.current
     val activeNotification by viewModel.activeNotifications.collectAsStateWithLifecycle()
     val archivedNotifications by viewModel.archivedNotifications.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
     var selectedTab by remember { mutableStateOf(NotificationTab.entries.first()) }
     val notifications =
         if (selectedTab == NotificationTab.Active) activeNotification else archivedNotifications
@@ -51,7 +49,7 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                 selectedTab = it
             }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+    ) { innerPadding ->
         if (notifications.isEmpty()) {
             EmptyNotificationState(selectedTab)
         }
@@ -69,7 +67,6 @@ fun NotificationList(viewModel: NotificationViewModel = hiltViewModel()) {
                 SwipeableNotificationItem(
                     item = item,
                     viewModel = viewModel,
-                    snackbarHostState = snackbarHostState,
                     selectedTab = selectedTab,
                     onItemClick = { clickedItem ->
                         try {

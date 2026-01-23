@@ -84,7 +84,7 @@ class NotificationListener : NotificationListenerService() {
 
     private fun observeNotificationCount() {
         serviceScope.launch {
-            notificationDao.getAllNotifications().collect { notifications ->
+            notificationDao.getActiveNotifications().collect { notifications ->
                 val notificationCount = notifications.size
                 val intent = Intent(this@NotificationListener, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP

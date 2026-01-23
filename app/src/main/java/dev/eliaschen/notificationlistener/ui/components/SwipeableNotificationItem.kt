@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.SwipeToDismissBox
 import dev.eliaschen.notificationlistener.room.table.NotificationEntity
+import dev.eliaschen.notificationlistener.util.LocalSnackBarHostState
 import dev.eliaschen.notificationlistener.util.NotificationTab
 import dev.eliaschen.notificationlistener.viewmodel.NotificationViewModel
 import kotlinx.coroutines.launch
@@ -15,10 +16,10 @@ import kotlinx.coroutines.launch
 fun SwipeableNotificationItem(
     item: NotificationEntity,
     viewModel: NotificationViewModel,
-    snackbarHostState: SnackbarHostState,
     onItemClick: (NotificationEntity) -> Unit,
     selectedTab: NotificationTab
 ) {
+    val snackbarHostState = LocalSnackBarHostState.current
     val scope = rememberCoroutineScope()
     val dismissState = rememberSwipeToDismissBoxState(
         positionalThreshold = { totalDistance -> totalDistance * 0.9f },
@@ -38,8 +39,7 @@ fun SwipeableNotificationItem(
                         viewModel.archiveNotification(item.id)
                     }
                     scope.launch {
-                        if (!isDelete) dismissState.snapTo(SwipeToDismissBoxValue.Settled)
-                        snackbarHostState.showSnackbar("A notification has been ${if (isDelete) "deleted" else "archived"}")
+                        dismissState.snapTo(SwipeToDismissBoxValue.Settled)
                     }
                 }
 

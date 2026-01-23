@@ -34,7 +34,7 @@ inline fun <reified T> SingleChooseTabRow(
                     inactiveContainerColor = MaterialTheme.colorScheme.background
                 ),
                 shape = SegmentedButtonDefaults.itemShape(
-                    index, enumEntries<T>().size, RoundedCornerShape(10.dp)
+                    index, enumEntries<T>().size
                 ),
                 icon = {
                     Icon(item.icon, contentDescription = item.label)

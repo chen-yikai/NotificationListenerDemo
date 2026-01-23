@@ -1,46 +1,52 @@
 package dev.eliaschen.notificationlistener.ui
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import dev.eliaschen.notificationlistener.ui.components.AppBottomNavbar
+import dev.eliaschen.notificationlistener.util.LocalNavStack
+import dev.eliaschen.notificationlistener.util.LocalSnackBarHostState
 import kotlinx.serialization.Serializable
 
-@Serializable
-data object NotificationScreen
+sealed interface Screen {
+    @Serializable
+    data object Notification : NavKey
 
-@Serializable
-data object ReminderScreen
+    @Serializable
+    data object Reminder : NavKey
+}
 
 @Composable
 fun NavScreen() {
-    val backStack = remember { mutableStateListOf<Any>(NotificationScreen) }
+    val backStack = rememberNavBackStack(Screen.Notification)
+    val snackbarHostState = remember { SnackbarHostState() }
     val entryProvider = entryProvider {
-        entry<NotificationScreen> { NotificationList() }
-        entry<ReminderScreen> { }
+        entry<Screen.Notification> { NotificationScreen() }
+        entry<Screen.Reminder> { ReminderScreen() }
     }
 
-    Surface {
-        Scaffold(bottomBar = {
-            AppBottomNavbar()
-        }) {
-            NavDisplay(
-                backStack,
-                entryProvider = entryProvider,
-                onBack = { backStack.removeLastOrNull() })
+    CompositionLocalProvider(
+        LocalSnackBarHostState provides snackbarHostState,
+        LocalNavStack provides backStack
+    ) {
+        Surface {
+            Scaffold(bottomBar = {
+                AppBottomNavbar()
+            }, snackbarHost = { SnackbarHost(snackbarHostState) }
+            ) {
+                NavDisplay(
+                    backStack,
+                    entryProvider = entryProvider,
+                    onBack = { backStack.removeLastOrNull() })
+            }
         }
     }
 }

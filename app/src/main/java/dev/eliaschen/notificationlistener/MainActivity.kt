@@ -11,14 +11,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.AndroidEntryPoint
 import dev.eliaschen.notificationlistener.ui.NavScreen
-import dev.eliaschen.notificationlistener.ui.NotificationList
 import dev.eliaschen.notificationlistener.ui.theme.NotificationListenerDemoTheme
 
 @AndroidEntryPoint
