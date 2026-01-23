@@ -12,9 +12,9 @@ data class TodoEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val title: String,
-    val description: String,
+    val time: Long? = null,
+    val detail: String?,
     val done: Boolean = false,
     val creator: Creator = Creator.USER,
-    val dueDate: Long? = null,
-    val timestamp: Long
+    val createdAt: Long, val updatedAt: Long
 )

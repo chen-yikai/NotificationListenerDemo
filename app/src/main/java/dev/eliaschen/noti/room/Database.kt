@@ -8,7 +8,7 @@ import dev.eliaschen.noti.room.dao.TodoDao
 import dev.eliaschen.noti.room.table.NotificationEntity
 import dev.eliaschen.noti.room.table.TodoEntity
 
-@Database(entities = [NotificationEntity::class, TodoEntity::class], version = 9)
+@Database(entities = [NotificationEntity::class, TodoEntity::class], version = 11)
 @TypeConverters(RoomTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun notificationDao(): NotificationDao

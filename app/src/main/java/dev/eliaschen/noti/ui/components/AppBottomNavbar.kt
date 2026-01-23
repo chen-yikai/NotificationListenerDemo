@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,10 +48,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.window.embedding.EmbeddingBounds
+import dev.eliaschen.noti.ui.ReminderAction
+import dev.eliaschen.noti.ui.ReminderMethod
 import dev.eliaschen.noti.ui.Screen
 import dev.eliaschen.noti.util.BottomNav
 import dev.eliaschen.noti.util.LocalNavStack
 import dev.eliaschen.noti.util.SpotlightAction
+
+private val navButtonWidth = 100.dp
+private val navButtonHeight = 70.dp
 
 @Composable
 fun AppBottomNavbar() {
@@ -58,7 +64,7 @@ fun AppBottomNavbar() {
     var navButtonOffsetX by remember { mutableFloatStateOf(0f) }
     val navStack = LocalNavStack.current
     val navIndicatorOffsetX by animateDpAsState(
-        targetValue = if (navStack.last() == Screen.Reminder) with(density) { navButtonOffsetX.toDp() } else 0.dp,
+        targetValue = if (navStack.last() == Screen.Notification) 0.dp else with(density) { navButtonOffsetX.toDp() },
         animationSpec = spring(
             dampingRatio = 0.8f,
             stiffness = 200f
@@ -79,7 +85,7 @@ fun AppBottomNavbar() {
                 active,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 index = index
-            )
+            ) { active = false }
         }
         Box(
             contentAlignment = Alignment.Center,
@@ -97,19 +103,19 @@ fun AppBottomNavbar() {
                         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
                         modifier = Modifier
                             .padding(5.dp)
-                            .size(90.dp, 50.dp)
+                            .size(navButtonWidth, navButtonHeight)
                             .offset(x = navIndicatorOffsetX),
                         shape = CircleShape
                     ) { }
                     Row(
                         modifier = Modifier
                             .padding(5.dp)
-                            .width(250.dp),
+                            .width(290.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         BottomNav.entries.forEach { item ->
-                            NavButton(item) {
+                            NavButton(item, { active = false }) {
                                 navButtonOffsetX = it
                             }
                         }
@@ -122,16 +128,17 @@ fun AppBottomNavbar() {
 }
 
 @Composable
-private fun NavButton(item: BottomNav, onPositioned: (Float) -> Unit) {
+private fun NavButton(item: BottomNav, dismiss: () -> Unit, onPositioned: (Float) -> Unit) {
     val navStack = LocalNavStack.current
     Column(
         modifier = Modifier
             .clip(CircleShape)
             .clickable {
+                dismiss()
                 navStack.clear()
                 navStack.add(item.route)
             }
-            .size(90.dp, 50.dp)
+            .size(navButtonWidth, navButtonHeight)
             .onGloballyPositioned { coordinates ->
                 onPositioned(coordinates.positionInParent().x)
             },
@@ -139,6 +146,7 @@ private fun NavButton(item: BottomNav, onPositioned: (Float) -> Unit) {
         verticalArrangement = Arrangement.Center
     ) {
         Icon(item.icon, contentDescription = item.label)
+        Spacer(modifier = Modifier.height(5.dp))
         Text(
             item.label,
             style = MaterialTheme.typography.labelSmall,
@@ -154,7 +162,7 @@ private fun SpotlightActionButton(
     toggle: () -> Unit
 ) {
     val rotate by animateFloatAsState(
-        targetValue = if (active) 45f else 0f,
+        targetValue = if (active) 135f else 0f,
         label = "spotlight action button rotation"
     )
 
@@ -168,7 +176,7 @@ private fun SpotlightActionButton(
             Icons.Rounded.Add,
             contentDescription = "Add",
             modifier = Modifier
-                .size(40.dp)
+                .size(50.dp)
                 .rotate(rotate)
         )
     }
@@ -179,16 +187,18 @@ private fun ActionButton(
     item: SpotlightAction,
     active: Boolean,
     index: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dismiss: () -> Unit,
 ) {
+    val backStack = LocalNavStack.current
     val side = if (index == 0) -1 else 1
     val offsetY by animateDpAsState(
-        targetValue = if (active) (-80).dp else 0.dp,
+        targetValue = if (active) (-100).dp else 0.dp,
         animationSpec = spring(dampingRatio = 0.7f, stiffness = 300f),
         label = "action button offsetY"
     )
     val offsetX by animateDpAsState(
-        if (active) (side * 45).dp else 0.dp,
+        if (active) (side * 60).dp else 0.dp,
         animationSpec = spring(dampingRatio = 0.7f, stiffness = 300f),
         label = "action button offsetX"
     )
@@ -205,11 +215,33 @@ private fun ActionButton(
         ),
         elevation = CardDefaults.elevatedCardElevation(shadow),
         border = CardDefaults.outlinedCardBorder(),
-        onClick = {},
+        onClick = {
+            dismiss()
+            backStack.clear()
+            when (item) {
+                SpotlightAction.Task -> {
+                    backStack.add(
+                        Screen.Reminder(
+                            method = ReminderMethod.Task,
+                            action = ReminderAction.NewTask
+                        )
+                    )
+                }
+
+                SpotlightAction.Memo -> {
+                    backStack.add(
+                        Screen.Reminder(
+                            method = ReminderMethod.Memo,
+                            action = ReminderAction.NewMemo
+                        )
+                    )
+                }
+            }
+        },
         modifier = Modifier
             .offset(x = offsetX, y = offsetY)
             .graphicsLayer { this.alpha = alpha }
-            .size(60.dp)
+            .size(80.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -217,7 +249,8 @@ private fun ActionButton(
             modifier = Modifier.fillMaxSize()
         ) {
             Icon(item.icon, contentDescription = item.label)
-            Text(item.label, style = MaterialTheme.typography.labelSmall, fontSize = 9.sp)
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(item.label, style = MaterialTheme.typography.labelMedium)
         }
     }
 }
