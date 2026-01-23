@@ -38,7 +38,7 @@ enum class BottomNav(
 enum class SpotlightAction(
     override val label: String,
     override val icon: ImageVector,
-    action: () -> Unit
+    val action: () -> Unit
 ) : TabRowData {
     Task("Task", Icons.Rounded.TaskAlt, {}),
     Memo("Memo", Icons.Rounded.StickyNote2, {})

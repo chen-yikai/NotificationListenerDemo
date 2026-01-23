@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -36,12 +37,16 @@ import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.window.embedding.EmbeddingBounds
 import dev.eliaschen.noti.ui.Screen
 import dev.eliaschen.noti.util.BottomNav
 import dev.eliaschen.noti.util.LocalNavStack
@@ -59,6 +64,7 @@ fun AppBottomNavbar() {
             stiffness = 200f
         ), label = "nav indicator offsetX"
     )
+    var active by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -67,36 +73,51 @@ fun AppBottomNavbar() {
             .padding(10.dp),
         contentAlignment = Alignment.Center
     ) {
-        Card(
-            border = CardDefaults.outlinedCardBorder(),
-            shape = CircleShape,
-            elevation = CardDefaults.outlinedCardElevation(5.dp)
+        SpotlightAction.entries.forEachIndexed { index, item ->
+            ActionButton(
+                item,
+                active,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                index = index
+            )
+        }
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            Box {
-                Card(
-                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .size(90.dp, 50.dp)
-                        .offset(x = navIndicatorOffsetX),
-                    shape = CircleShape
-                ) { }
-                Row(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .width(250.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    BottomNav.entries.forEach { item ->
-                        NavButton(item) {
-                            navButtonOffsetX = it
+            Card(
+                border = CardDefaults.outlinedCardBorder(),
+                shape = CircleShape,
+                elevation = CardDefaults.outlinedCardElevation(5.dp), modifier = Modifier.align(
+                    Alignment.BottomCenter
+                )
+            ) {
+                Box {
+                    Card(
+                        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(90.dp, 50.dp)
+                            .offset(x = navIndicatorOffsetX),
+                        shape = CircleShape
+                    ) { }
+                    Row(
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .width(250.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        BottomNav.entries.forEach { item ->
+                            NavButton(item) {
+                                navButtonOffsetX = it
+                            }
                         }
                     }
                 }
             }
+            SpotlightActionButton(active = active) { active = !active }
         }
-        SpotlightActionButton(modifier = Modifier.align(Alignment.Center))
     }
 }
 
@@ -127,8 +148,11 @@ private fun NavButton(item: BottomNav, onPositioned: (Float) -> Unit) {
 }
 
 @Composable
-private fun SpotlightActionButton(modifier: Modifier = Modifier) {
-    var active by remember { mutableStateOf(false) }
+private fun SpotlightActionButton(
+    modifier: Modifier = Modifier,
+    active: Boolean = false,
+    toggle: () -> Unit
+) {
     val rotate by animateFloatAsState(
         targetValue = if (active) 45f else 0f,
         label = "spotlight action button rotation"
@@ -138,7 +162,8 @@ private fun SpotlightActionButton(modifier: Modifier = Modifier) {
         modifier
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.tertiaryContainer)
-            .clickable { active = !active }) {
+            .clickable(onClick = toggle)
+    ) {
         Icon(
             Icons.Rounded.Add,
             contentDescription = "Add",
@@ -150,28 +175,49 @@ private fun SpotlightActionButton(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ActionButton(item: SpotlightAction) {
+private fun ActionButton(
+    item: SpotlightAction,
+    active: Boolean,
+    index: Int,
+    modifier: Modifier = Modifier
+) {
+    val side = if (index == 0) -1 else 1
+    val offsetY by animateDpAsState(
+        targetValue = if (active) (-80).dp else 0.dp,
+        animationSpec = spring(dampingRatio = 0.7f, stiffness = 300f),
+        label = "action button offsetY"
+    )
+    val offsetX by animateDpAsState(
+        if (active) (side * 45).dp else 0.dp,
+        animationSpec = spring(dampingRatio = 0.7f, stiffness = 300f),
+        label = "action button offsetX"
+    )
+    val alpha by animateFloatAsState(
+        targetValue = if (active) 1f else 0f,
+        label = "action button alpha"
+    )
+    val shadow by animateDpAsState(if (active && alpha == 1f) 5.dp else 0.dp)
+
     Card(
         shape = CircleShape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.elevatedCardElevation(shadow),
         border = CardDefaults.outlinedCardBorder(),
-        elevation = CardDefaults.elevatedCardElevation(10.dp),
-        modifier = Modifier.size(60.dp)
+        onClick = {},
+        modifier = Modifier
+            .offset(x = offsetX, y = offsetY)
+            .graphicsLayer { this.alpha = alpha }
+            .size(60.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxSize()
         ) {
             Icon(item.icon, contentDescription = item.label)
-            Text(item.label, style = MaterialTheme.typography.labelSmall)
+            Text(item.label, style = MaterialTheme.typography.labelSmall, fontSize = 9.sp)
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewActionButton() {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        ActionButton(SpotlightAction.Task)
-        ActionButton(SpotlightAction.Memo)
     }
 }
