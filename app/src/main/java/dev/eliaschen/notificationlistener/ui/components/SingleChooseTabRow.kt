@@ -40,7 +40,7 @@ inline fun <reified T> SingleChooseTabRow(
                     Icon(item.icon, contentDescription = item.label)
                 }
             ) {
-                Text(item.label, fontFamily = notoSerif)
+                Text(item.label)
             }
         }
     }

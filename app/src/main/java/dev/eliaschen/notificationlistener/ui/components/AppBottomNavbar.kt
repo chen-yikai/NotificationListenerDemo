@@ -74,7 +74,6 @@ private fun NavButton(item: BottomNav) {
         Text(
             item.label,
             style = MaterialTheme.typography.labelSmall,
-            fontFamily = notoSerif,
             fontSize = 10.sp
         )
     }
