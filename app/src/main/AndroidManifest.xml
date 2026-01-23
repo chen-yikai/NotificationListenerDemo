@@ -23,7 +23,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/notification_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NotificationListener">
+        android:theme="@style/Theme.Noti">
         <uses-library
             android:name="com.google.android.aicore"
             android:required="false" />
@@ -41,7 +41,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.NotificationListener">
+            android:theme="@style/Theme.Noti">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

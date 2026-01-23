@@ -1,0 +1,89 @@
+package dev.eliaschen.noti.ui
+
+import android.app.ActivityOptions
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.eliaschen.noti.ui.components.EmptyNotificationState
+import dev.eliaschen.noti.ui.components.SingleChooseTabRow
+import dev.eliaschen.noti.ui.components.SwipeableNotificationItem
+import dev.eliaschen.noti.util.LocalSnackBarHostState
+import dev.eliaschen.noti.util.NotificationTab
+import dev.eliaschen.noti.util.launchPackage
+import dev.eliaschen.noti.viewmodel.NotificationViewModel
+
+
+@Composable
+fun NotificationScreen(
+    viewModel: NotificationViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val activeNotification by viewModel.activeNotifications.collectAsStateWithLifecycle()
+    val archivedNotifications by viewModel.archivedNotifications.collectAsStateWithLifecycle()
+    var selectedTab by remember { mutableStateOf(NotificationTab.entries.first()) }
+    val notifications =
+        if (selectedTab == NotificationTab.Active) activeNotification else archivedNotifications
+
+    Scaffold(
+        topBar = {
+            SingleChooseTabRow(
+                selectedTab, modifier = Modifier
+                    .statusBarsPadding()
+                    .padding(vertical = 10.dp, horizontal = 20.dp)
+            ) {
+                selectedTab = it
+            }
+        },
+    ) { innerPadding ->
+        if (notifications.isEmpty()) {
+            EmptyNotificationState(selectedTab)
+        }
+        LazyColumn(
+            modifier = Modifier, contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding()
+            )
+        ) {
+            items(
+                notifications,
+                key = { it.id }) { item ->
+                SwipeableNotificationItem(
+                    item = item,
+                    viewModel = viewModel,
+                    selectedTab = selectedTab,
+                    onItemClick = { clickedItem ->
+                        try {
+                            val pendingIntent = viewModel.cache[clickedItem.id]
+                            if (pendingIntent !== null) {
+                                val options = ActivityOptions.makeBasic().apply {
+                                    pendingIntentBackgroundActivityStartMode =
+                                        ActivityOptions.MODE_BACKGROUND_ACTIVITY_START_ALLOWED
+                                }
+                                pendingIntent.send(options.toBundle())
+                            } else {
+                                launchPackage(context, clickedItem.packageName)
+                            }
+                        } catch (e: Exception) {
+                            launchPackage(context, clickedItem.packageName)
+                        }
+                    })
+            }
+        }
+    }
+}

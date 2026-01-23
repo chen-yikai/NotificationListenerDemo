@@ -8,13 +8,13 @@ plugins {
 }
 
 android {
-    namespace = "dev.eliaschen.notificationlistener"
+    namespace = "dev.eliaschen.noti"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "dev.eliaschen.notificationlistener"
+        applicationId = "dev.eliaschen.noti"
         minSdk = 35
         targetSdk = 36
         versionCode = 1
