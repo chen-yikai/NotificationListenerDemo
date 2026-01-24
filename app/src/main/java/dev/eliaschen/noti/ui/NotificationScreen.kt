@@ -1,6 +1,7 @@
 package dev.eliaschen.noti.ui
 
 import android.app.ActivityOptions
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -82,6 +83,11 @@ fun NotificationScreen(
                 notifications,
                 key = { it.id }) { item ->
                 SwipeableNotificationItem(
+                    modifier = Modifier.animateItem(
+                        fadeInSpec = spring(),
+                        fadeOutSpec = spring(),
+                        placementSpec = spring()
+                    ),
                     item = item,
                     viewModel = viewModel,
                     selectedTab = selectedTab,

@@ -5,6 +5,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.ui.Modifier
 import dev.eliaschen.noti.room.table.NotificationEntity
 import dev.eliaschen.noti.utils.LocalSnackBarHostState
 import dev.eliaschen.noti.utils.NotificationTab
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SwipeableNotificationItem(
+    modifier: Modifier = Modifier,
     item: NotificationEntity,
     viewModel: NotificationViewModel,
     onItemClick: (NotificationEntity) -> Unit,
@@ -26,6 +28,7 @@ fun SwipeableNotificationItem(
     val isDelete = selectedTab == NotificationTab.History
 
     SwipeToDismissBox(
+        modifier = modifier,
         state = dismissState,
         enableDismissFromEndToStart = true,
         enableDismissFromStartToEnd = selectedTab == NotificationTab.Active,
