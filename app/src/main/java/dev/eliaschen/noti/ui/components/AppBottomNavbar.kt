@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -73,6 +74,7 @@ fun AppBottomNavbar() {
             .padding(10.dp),
         contentAlignment = Alignment.Center
     ) {
+        // popup FABs
         SpotlightAction.entries.forEachIndexed { index, item ->
             ActionButton(
                 item,
@@ -85,6 +87,7 @@ fun AppBottomNavbar() {
             contentAlignment = Alignment.Center,
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
+            // bottom nav main component
             Card(
                 border = CardDefaults.outlinedCardBorder(),
                 shape = CircleShape,
@@ -93,14 +96,21 @@ fun AppBottomNavbar() {
                 )
             ) {
                 Box {
+                    // animated nav indicator
                     Card(
                         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background),
                         modifier = Modifier
                             .padding(5.dp)
                             .size(navButtonWidth, navButtonHeight)
-                            .offset(x = navIndicatorOffsetX),
+                            .offset(x = navIndicatorOffsetX)
+                            .border(
+                                1.dp,
+                                MaterialTheme.colorScheme.primaryContainer.copy(0.5f),
+                                CircleShape
+                            ),
                         shape = CircleShape
                     ) { }
+                    // nav buttons
                     Row(
                         modifier = Modifier
                             .padding(5.dp)
@@ -116,6 +126,7 @@ fun AppBottomNavbar() {
                     }
                 }
             }
+            // center toggle fab button
             SpotlightActionButton(active = active) { active = !active }
         }
     }

@@ -86,6 +86,7 @@ fun NotificationScreen(
                     viewModel = viewModel,
                     selectedTab = selectedTab,
                     onItemClick = { clickedItem ->
+                        // handle notification click (cache exist -> launch OG pendingIntent, else -> launch App via packageName)
                         try {
                             val pendingIntent = viewModel.cache[clickedItem.id]
                             if (pendingIntent !== null) {
@@ -99,6 +100,10 @@ fun NotificationScreen(
                             }
                         } catch (e: Exception) {
                             launchPackage(context, clickedItem.packageName)
+                        }
+                        // Archive notification after intent
+                        if (selectedTab == NotificationTab.Active) {
+                            viewModel.archiveNotification(clickedItem.id)
                         }
                     })
             }
