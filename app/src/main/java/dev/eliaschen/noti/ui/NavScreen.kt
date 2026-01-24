@@ -24,7 +24,8 @@ sealed interface Screen : NavKey {
     @Serializable
     data class Reminder(
         val method: ReminderMethod = ReminderMethod.None,
-        val action: ReminderAction = ReminderAction.None
+        val action: ReminderAction = ReminderAction.None,
+        val timestamp: Long = 0L
     ) : Screen
 }
 

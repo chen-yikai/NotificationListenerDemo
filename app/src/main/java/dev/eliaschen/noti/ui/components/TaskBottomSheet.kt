@@ -1,6 +1,5 @@
 package dev.eliaschen.noti.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +39,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import dev.eliaschen.noti.room.table.TaskEntity
 import dev.eliaschen.noti.utils.ExtraOption
 import dev.eliaschen.noti.viewmodel.TaskViewModel
 import kotlinx.coroutines.launch
@@ -52,7 +52,7 @@ import java.util.Locale
 fun TaskBottomSheet(
     sheetState: SheetState,
     todo: TaskViewModel = hiltViewModel(),
-    showBottomSheet: () -> Unit
+    onDismiss: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val title = rememberTextFieldState()
@@ -96,7 +96,7 @@ fun TaskBottomSheet(
 
     ModalBottomSheet(sheetState = sheetState, onDismissRequest = {
         scope.launch {
-            showBottomSheet()
+            onDismiss()
         }
     }) {
         Column(
@@ -164,7 +164,21 @@ fun TaskBottomSheet(
                         )
                     }
                 }
-                Button(onClick = {}) { Text("Save") }
+                Button(onClick = {
+                    val currentTime = System.currentTimeMillis()
+                    val task = TaskEntity(
+                        title = title.text.toString().ifEmpty { "Untitled" },
+                        time = if (hasTime) time else null,
+                        detail = if (hasDetails) info.text.toString() else null,
+                        createdAt = currentTime,
+                        updatedAt = currentTime
+                    )
+                    todo.addTask(task)
+                    scope.launch {
+                        sheetState.hide()
+                        onDismiss()
+                    }
+                }) { Text("Save") }
             }
         }
     }

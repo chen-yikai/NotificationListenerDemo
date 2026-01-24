@@ -217,7 +217,8 @@ private fun ActionButton(
                     backStack.add(
                         Screen.Reminder(
                             method = ReminderMethod.Task,
-                            action = ReminderAction.NewTask
+                            action = ReminderAction.NewTask,
+                            timestamp = System.currentTimeMillis()
                         )
                     )
                 }
@@ -226,7 +227,8 @@ private fun ActionButton(
                     backStack.add(
                         Screen.Reminder(
                             method = ReminderMethod.Memo,
-                            action = ReminderAction.NewMemo
+                            action = ReminderAction.NewMemo,
+                            timestamp = System.currentTimeMillis()
                         )
                     )
                 }

@@ -1,15 +1,13 @@
 package dev.eliaschen.noti.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +21,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.eliaschen.noti.ui.components.SingleChooseTabRow
 import dev.eliaschen.noti.ui.components.TaskBottomSheet
+import dev.eliaschen.noti.ui.components.TaskCard
+import dev.eliaschen.noti.utils.LocalNavStack
 import dev.eliaschen.noti.utils.ReminderTab
 import dev.eliaschen.noti.viewmodel.TaskViewModel
 import kotlinx.coroutines.delay
@@ -34,24 +34,26 @@ fun ReminderScreen(
     action: ReminderAction,
     viewModel: TaskViewModel = hiltViewModel()
 ) {
+    val nav = LocalNavStack.current
     var selectedTab by remember { mutableStateOf(ReminderTab.Task) }
     val allTodo by viewModel.allTodo.collectAsStateWithLifecycle()
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(method) {
         delay(100)
         when (method) {
             ReminderMethod.Task -> selectedTab = ReminderTab.Task
             ReminderMethod.Memo -> selectedTab = ReminderTab.Memo
             else -> {}
         }
+    }
+    
+    LaunchedEffect(action) {
         when (action) {
             ReminderAction.NewTask -> showBottomSheet = true
             ReminderAction.NewMemo -> {}
-            else -> {
-
-            }
+            else -> {}
         }
     }
     if (showBottomSheet) {
@@ -73,14 +75,18 @@ fun ReminderScreen(
             contentPadding = PaddingValues(
                 top = innerPadding.calculateTopPadding(),
                 start = 20.dp,
-                end = 20.dp
-            )
+                end = 20.dp,
+                bottom = 20.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(allTodo, key = { it.id }) {
-                Card {
-                    Checkbox(it.done, onCheckedChange = {})
-                    Text(it.title)
-                }
+            items(allTodo, key = { it.id }) { task ->
+                TaskCard(
+                    task = task,
+                    onCheckedChange = { checked ->
+                        viewModel.updateTaskStatus(task.id, checked)
+                    }
+                )
             }
         }
     }
