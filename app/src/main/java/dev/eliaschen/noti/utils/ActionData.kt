@@ -46,5 +46,7 @@ data class ExtraOption(
     val label: String,
     val icon: ImageVector,
     val active: Boolean = false,
+    val timestamp: Long = 0L,
+    val format: String = "yyyy/MM/dd",
     val action: () -> Unit
 )

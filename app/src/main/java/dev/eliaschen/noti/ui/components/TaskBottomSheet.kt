@@ -1,5 +1,6 @@
 package dev.eliaschen.noti.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ShortText
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -35,13 +37,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.eliaschen.noti.utils.ExtraOption
 import dev.eliaschen.noti.viewmodel.TaskViewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,16 +62,37 @@ fun TaskBottomSheet(
     var hasTime by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var hasDetails by remember { mutableStateOf(false) }
+    
+    val timeFormatter = remember { SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()) }
+    val timeLabel = if (hasTime && time > 0) timeFormatter.format(time) else "Time"
+    
+    val timeIcon = if (hasTime) Icons.Rounded.Close else Icons.Rounded.AccessTime
+    
     val options = listOf(
-        ExtraOption("Details", Icons.Rounded.ShortText, hasDetails, { hasDetails = !hasDetails }),
-        ExtraOption("Time", Icons.Rounded.AccessTime, hasTime, { showTimePicker = true }),
+        ExtraOption("Details", Icons.Rounded.ShortText, hasDetails) { hasDetails = !hasDetails },
+        ExtraOption(timeLabel, timeIcon, hasTime) { 
+            if (hasTime) {
+                time = 0L
+                hasTime = false
+            } else {
+                showTimePicker = true
+            }
+        },
     )
 
     LaunchedEffect(Unit) {
         titleFocusRequester.requestFocus()
     }
 
-    if (showTimePicker) DateTimePickerDialog { showTimePicker = false }
+    if (showTimePicker) {
+        DateTimePickerDialog(
+            dismiss = { showTimePicker = false },
+            onConfirm = { selectedTimeMillis ->
+                time = selectedTimeMillis
+                hasTime = true
+            }
+        )
+    }
 
     ModalBottomSheet(sheetState = sheetState, onDismissRequest = {
         scope.launch {
@@ -126,17 +150,18 @@ fun TaskBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    items(options) { (label, icon, active, action) ->
+                    items(options) { item ->
                         AssistChip(
-                            onClick = action,
-                            label = { Text(label) },
-                            colors = AssistChipDefaults.assistChipColors(containerColor = if (active) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.background),
+                            onClick = item.action,
+                            label = { Text(item.label) },
+                            colors = AssistChipDefaults.assistChipColors(containerColor = if (item.active) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.background),
                             leadingIcon = {
                                 Icon(
-                                    icon,
-                                    contentDescription = label
+                                    item.icon,
+                                    contentDescription = item.label
                                 )
-                            })
+                            }
+                        )
                     }
                 }
                 Button(onClick = {}) { Text("Save") }

@@ -2,7 +2,6 @@ package dev.eliaschen.noti.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +15,9 @@ import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -26,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -40,24 +38,75 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import dev.eliaschen.noti.utils.ExtraOption
-import java.util.Calendar
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DateTimePickerDialog(dismiss: () -> Unit) {
-    val currentTime = Calendar.getInstance()
-    var time by remember { mutableStateOf(currentTime.timeInMillis) }
+fun DateTimePickerDialog(
+    dismiss: () -> Unit,
+    onConfirm: (Long) -> Unit = {}
+) {
+    var selectedDateTime by remember { mutableStateOf(LocalDateTime.now()) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+    
+    val dateTimeMillis = selectedDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    val dateFormatter = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
+    val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    
     val options = listOf(
-        ExtraOption("Date", Icons.Rounded.DateRange) { showDatePicker = true },
-        ExtraOption("Time", Icons.Rounded.AccessTime) {showTimePicker = true},
+        ExtraOption(
+            "Date",
+            Icons.Rounded.DateRange,
+            timestamp = dateTimeMillis,
+            format = "yyyy/MM/dd"
+        ) { showDatePicker = true },
+        ExtraOption(
+            "Time",
+            Icons.Rounded.AccessTime,
+            timestamp = dateTimeMillis,
+            format = "HH:mm"
+        ) { showTimePicker = true },
+    )
+    
+    val formatters = mapOf(
+        "yyyy/MM/dd" to dateFormatter,
+        "HH:mm" to timeFormatter
     )
 
-    if (showDatePicker) CustomDatePickerDialog(onDismiss = { showDatePicker = false }) { }
-    if (showTimePicker) CustomTimePickerDialog(onDismiss = { showTimePicker = false }) { }
+    if (showDatePicker) {
+        CustomDatePickerDialog(
+            initialDateMillis = dateTimeMillis,
+            onDismiss = {
+                showDatePicker = false
+            }
+        ) { dateMillis ->
+            val newDate = Instant.ofEpochMilli(dateMillis)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+            selectedDateTime = LocalDateTime.of(newDate, selectedDateTime.toLocalTime())
+        }
+    }
+    if (showTimePicker) {
+        CustomTimePickerDialog(
+            initialHour = selectedDateTime.hour,
+            initialMinute = selectedDateTime.minute,
+            onDismiss = {
+                showTimePicker = false
+            }
+        ) { hour, minute ->
+            selectedDateTime = selectedDateTime.withHour(hour).withMinute(minute)
+        }
+    }
     Dialog(onDismissRequest = dismiss) {
-        Card(shape = RoundedCornerShape(20.dp)) {
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(MaterialTheme.colorScheme.background)
+        ) {
             LazyColumn(modifier = Modifier.padding(top = 10.dp)) {
                 items(options) { item ->
                     Row(
@@ -75,6 +124,10 @@ fun DateTimePickerDialog(dismiss: () -> Unit) {
                             Icon(item.icon, contentDescription = item.label)
                             Text(item.label, style = MaterialTheme.typography.titleMedium)
                         }
+                        Text(
+                            formatters[item.format]?.format(item.timestamp) ?: "",
+                            style = MaterialTheme.typography.labelLarge
+                        )
                     }
                     HorizontalDivider()
                 }
@@ -86,9 +139,16 @@ fun DateTimePickerDialog(dismiss: () -> Unit) {
                             .padding(horizontal = 20.dp, vertical = 10.dp)
                             .fillMaxWidth()
                     ) {
-                        TextButton(onClick = {}) { Text("Cancel") }
+                        TextButton(onClick = dismiss) { Text("Cancel") }
                         Spacer(Modifier.width(10.dp))
-                        TextButton(onClick = {}) { Text("Done") }
+                        TextButton(onClick = {
+                            val epochMillis = selectedDateTime
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant()
+                                .toEpochMilli()
+                            onConfirm(epochMillis)
+                            dismiss()
+                        }) { Text("Done") }
                     }
                 }
             }
@@ -98,10 +158,11 @@ fun DateTimePickerDialog(dismiss: () -> Unit) {
 
 @Composable
 fun CustomDatePickerDialog(
+    initialDateMillis: Long = System.currentTimeMillis(),
     onDismiss: () -> Unit,
     onSelected: (Long) -> Unit
 ) {
-    val datePickerState = rememberDatePickerState()
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = initialDateMillis)
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -109,6 +170,7 @@ fun CustomDatePickerDialog(
                 datePickerState.selectedDateMillis?.let {
                     onSelected(it)
                 }
+                onDismiss()
             }) {
                 Text("Done")
             }
@@ -130,17 +192,24 @@ fun CustomDatePickerDialog(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CustomTimePickerDialog(onDismiss: () -> Unit, onConfirm: (TimePickerState) -> Unit) {
-    val currentTime = Calendar.getInstance()
+private fun CustomTimePickerDialog(
+    initialHour: Int,
+    initialMinute: Int,
+    onDismiss: () -> Unit,
+    onConfirm: (Int, Int) -> Unit
+) {
     val timePickerState = rememberTimePickerState(
-        initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
-        initialMinute = currentTime.get(Calendar.MINUTE),
+        initialHour = initialHour,
+        initialMinute = initialMinute,
         is24Hour = true,
     )
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = { onConfirm(timePickerState) }) {
+            TextButton(onClick = {
+                onConfirm(timePickerState.hour, timePickerState.minute)
+                onDismiss()
+            }) {
                 Text("OK")
             }
         },
@@ -153,10 +222,4 @@ private fun CustomTimePickerDialog(onDismiss: () -> Unit, onConfirm: (TimePicker
             TimePicker(state = timePickerState)
         }
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewDateTimePickerDialog() {
-    DateTimePickerDialog {}
 }
