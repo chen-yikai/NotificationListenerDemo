@@ -6,7 +6,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
@@ -14,8 +13,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import dev.eliaschen.noti.ui.components.AppBottomNavbar
-import dev.eliaschen.noti.util.LocalNavStack
-import dev.eliaschen.noti.util.LocalSnackBarHostState
+import dev.eliaschen.noti.utils.LocalNavStack
+import dev.eliaschen.noti.utils.LocalSnackBarHostState
 import kotlinx.serialization.Serializable
 
 sealed interface Screen : NavKey {

@@ -1,4 +1,4 @@
-package dev.eliaschen.noti.util
+package dev.eliaschen.noti.utils
 
 import android.content.Context
 

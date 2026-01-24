@@ -9,7 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dev.eliaschen.noti.room.AppDatabase
 import dev.eliaschen.noti.room.dao.NotificationDao
-import dev.eliaschen.noti.room.dao.TodoDao
+import dev.eliaschen.noti.room.dao.TaskDao
 import javax.inject.Singleton
 
 @Module
@@ -30,7 +30,7 @@ object DatabaseModule {
         return db.notificationDao()
     }
     @Provides
-    fun provideTodoDao(db: AppDatabase): TodoDao{
+    fun provideTaskDao(db: AppDatabase): TaskDao{
         return db.todoDao()
     }
 }

@@ -7,8 +7,8 @@ enum class Creator {
     USER, AUTO
 }
 
-@Entity(tableName = "todo")
-data class TodoEntity(
+@Entity(tableName = "task")
+data class TaskEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val title: String,

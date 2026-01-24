@@ -18,7 +18,6 @@ import androidx.compose.material.icons.rounded.ShortText
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ChipColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,21 +39,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import dev.eliaschen.noti.viewmodel.TodoViewModel
+import dev.eliaschen.noti.utils.ExtraOption
+import dev.eliaschen.noti.viewmodel.TaskViewModel
 import kotlinx.coroutines.launch
 
-data class ExtraOption(
-    val label: String,
-    val icon: ImageVector,
-    val active: Boolean,
-    val action: () -> Unit
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskBottomSheet(
     sheetState: SheetState,
-    todo: TodoViewModel = hiltViewModel(),
+    todo: TaskViewModel = hiltViewModel(),
     showBottomSheet: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -67,14 +61,14 @@ fun TaskBottomSheet(
     var hasDetails by remember { mutableStateOf(false) }
     val options = listOf(
         ExtraOption("Details", Icons.Rounded.ShortText, hasDetails, { hasDetails = !hasDetails }),
-        ExtraOption("Time", Icons.Rounded.AccessTime, hasTime, {
-
-        }),
+        ExtraOption("Time", Icons.Rounded.AccessTime, hasTime, { showTimePicker = true }),
     )
 
     LaunchedEffect(Unit) {
         titleFocusRequester.requestFocus()
     }
+
+    if (showTimePicker) DateTimePickerDialog { showTimePicker = false }
 
     ModalBottomSheet(sheetState = sheetState, onDismissRequest = {
         scope.launch {

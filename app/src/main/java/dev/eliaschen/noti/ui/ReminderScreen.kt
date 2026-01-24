@@ -23,8 +23,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.eliaschen.noti.ui.components.SingleChooseTabRow
 import dev.eliaschen.noti.ui.components.TaskBottomSheet
-import dev.eliaschen.noti.util.ReminderTab
-import dev.eliaschen.noti.viewmodel.TodoViewModel
+import dev.eliaschen.noti.utils.ReminderTab
+import dev.eliaschen.noti.viewmodel.TaskViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +32,7 @@ import kotlinx.coroutines.delay
 fun ReminderScreen(
     method: ReminderMethod,
     action: ReminderAction,
-    viewModel: TodoViewModel = hiltViewModel()
+    viewModel: TaskViewModel = hiltViewModel()
 ) {
     var selectedTab by remember { mutableStateOf(ReminderTab.Task) }
     val allTodo by viewModel.allTodo.collectAsStateWithLifecycle()

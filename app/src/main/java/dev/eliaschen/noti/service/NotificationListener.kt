@@ -16,8 +16,8 @@ import dev.eliaschen.noti.MainActivity
 import dev.eliaschen.noti.notification_label_channel
 import dev.eliaschen.noti.room.dao.NotificationDao
 import dev.eliaschen.noti.room.table.NotificationEntity
-import dev.eliaschen.noti.util.createNotificationIcon
-import dev.eliaschen.noti.util.drawableToBitmap
+import dev.eliaschen.noti.utils.createNotificationIcon
+import dev.eliaschen.noti.utils.drawableToBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

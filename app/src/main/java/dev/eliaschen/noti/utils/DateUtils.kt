@@ -1,4 +1,4 @@
-package dev.eliaschen.noti.util
+package dev.eliaschen.noti.utils
 
 import java.text.SimpleDateFormat
 import java.util.Date

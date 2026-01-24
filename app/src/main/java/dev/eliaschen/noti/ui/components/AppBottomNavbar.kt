@@ -34,26 +34,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.window.embedding.EmbeddingBounds
 import dev.eliaschen.noti.ui.ReminderAction
 import dev.eliaschen.noti.ui.ReminderMethod
 import dev.eliaschen.noti.ui.Screen
-import dev.eliaschen.noti.util.BottomNav
-import dev.eliaschen.noti.util.LocalNavStack
-import dev.eliaschen.noti.util.SpotlightAction
+import dev.eliaschen.noti.utils.BottomNav
+import dev.eliaschen.noti.utils.LocalNavStack
+import dev.eliaschen.noti.utils.SpotlightAction
 
 private val navButtonWidth = 100.dp
 private val navButtonHeight = 70.dp

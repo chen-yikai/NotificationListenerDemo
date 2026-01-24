@@ -1,14 +1,13 @@
 package dev.eliaschen.noti.ui.components
 
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.SwipeToDismissBox
 import dev.eliaschen.noti.room.table.NotificationEntity
-import dev.eliaschen.noti.util.LocalSnackBarHostState
-import dev.eliaschen.noti.util.NotificationTab
+import dev.eliaschen.noti.utils.LocalSnackBarHostState
+import dev.eliaschen.noti.utils.NotificationTab
 import dev.eliaschen.noti.viewmodel.NotificationViewModel
 import kotlinx.coroutines.launch
 

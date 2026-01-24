@@ -1,7 +1,6 @@
-package dev.eliaschen.noti.util
+package dev.eliaschen.noti.utils
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.StickyNote2
@@ -42,3 +41,10 @@ enum class SpotlightAction(
     Task("Task", Icons.Rounded.TaskAlt),
     Memo("Memo", Icons.Rounded.StickyNote2)
 }
+
+data class ExtraOption(
+    val label: String,
+    val icon: ImageVector,
+    val active: Boolean = false,
+    val action: () -> Unit
+)

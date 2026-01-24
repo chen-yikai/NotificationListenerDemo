@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.eliaschen.noti.room.table.NotificationEntity
-import dev.eliaschen.noti.util.toDateTime
+import dev.eliaschen.noti.utils.toDateTime
 
 @Composable
 fun NotificationItemCard(
