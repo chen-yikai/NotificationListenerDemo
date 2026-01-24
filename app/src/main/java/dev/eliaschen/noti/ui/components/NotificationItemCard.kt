@@ -52,7 +52,7 @@ fun NotificationItemCard(
             Text(
                 text = item.timestamp.toDateTime(),
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

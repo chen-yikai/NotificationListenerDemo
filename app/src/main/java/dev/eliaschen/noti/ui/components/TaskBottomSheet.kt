@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,19 +59,27 @@ fun TaskBottomSheet(
     val title = rememberTextFieldState()
     val info = rememberTextFieldState()
     val titleFocusRequester = remember { FocusRequester() }
+    val detailFocusRequester = remember { FocusRequester() }
     var time by remember { mutableStateOf(0L) }
     var hasTime by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     var hasDetails by remember { mutableStateOf(false) }
-    
+
     val timeFormatter = remember { SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()) }
     val timeLabel = if (hasTime && time > 0) timeFormatter.format(time) else "Time"
-    
+
     val timeIcon = if (hasTime) Icons.Rounded.Close else Icons.Rounded.AccessTime
-    
+
     val options = listOf(
-        ExtraOption("Details", Icons.Rounded.ShortText, hasDetails) { hasDetails = !hasDetails },
-        ExtraOption(timeLabel, timeIcon, hasTime) { 
+        ExtraOption("Details", Icons.Rounded.ShortText, hasDetails) {
+            hasDetails = !hasDetails
+            if (hasDetails) {
+                scope.launch {
+                    detailFocusRequester.requestFocus()
+                }
+            }
+        },
+        ExtraOption(timeLabel, timeIcon, hasTime) {
             if (hasTime) {
                 time = 0L
                 hasTime = false
@@ -108,43 +117,54 @@ fun TaskBottomSheet(
         ) {
             val accentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             val titleTextStyle =
-                MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
-            val infoTextStyle = MaterialTheme.typography.bodyLarge
-            BasicTextField(
-                title,
-                textStyle = titleTextStyle,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(titleFocusRequester),
-                lineLimits = TextFieldLineLimits.SingleLine,
-                decorator = { innerTextField ->
-                    Box(contentAlignment = Alignment.CenterStart) {
-                        if (title.text.isEmpty()) {
-                            Text(
-                                text = "Untitled",
-                                style = titleTextStyle.copy(color = accentColor)
-                            )
-                        }
-                        innerTextField()
-                    }
-                }
+                MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            val infoTextStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface
             )
-            if (hasDetails) {
                 BasicTextField(
-                    info, textStyle = infoTextStyle, modifier = Modifier.fillMaxWidth(),
+                    title,
+                    textStyle = titleTextStyle,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(titleFocusRequester),
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
                     decorator = { innerTextField ->
                         Box(contentAlignment = Alignment.CenterStart) {
-                            if (info.text.isEmpty()) {
+                            if (title.text.isEmpty()) {
                                 Text(
-                                    text = "some description...",
-                                    style = infoTextStyle.copy(color = accentColor)
+                                    text = "Untitled",
+                                    style = titleTextStyle.copy(color = accentColor)
                                 )
                             }
                             innerTextField()
                         }
                     }
                 )
-            }
+                if (hasDetails) {
+                    BasicTextField(
+                        info,
+                        textStyle = infoTextStyle,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(detailFocusRequester),
+                        cursorBrush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary),
+                        decorator = { innerTextField ->
+                            Box(contentAlignment = Alignment.CenterStart) {
+                                if (info.text.isEmpty()) {
+                                    Text(
+                                        text = "some description...",
+                                        style = infoTextStyle.copy(color = accentColor)
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
+                    )
+                }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -154,7 +174,11 @@ fun TaskBottomSheet(
                         AssistChip(
                             onClick = item.action,
                             label = { Text(item.label) },
-                            colors = AssistChipDefaults.assistChipColors(containerColor = if (item.active) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.background),
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = if (item.active) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                leadingIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
                             leadingIcon = {
                                 Icon(
                                     item.icon,

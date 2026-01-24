@@ -15,7 +15,7 @@ fun EmptyNotificationState(selectedTab: NotificationTab) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             if (selectedTab == NotificationTab.Active) "No active notifications yet" else "No archived notifications yet",
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge
         )
     }

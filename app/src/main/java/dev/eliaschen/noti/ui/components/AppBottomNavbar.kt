@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +57,7 @@ private val navButtonHeight = 70.dp
 @Composable
 fun AppBottomNavbar() {
     val density = LocalDensity.current
-    var navButtonOffsetX by remember { mutableFloatStateOf(0f) }
+    var navButtonOffsetX by rememberSaveable { mutableFloatStateOf(0f) }
     val navStack = LocalNavStack.current
     val navIndicatorOffsetX by animateDpAsState(
         targetValue = if (navStack.last() == Screen.Notification) 0.dp else with(density) { navButtonOffsetX.toDp() },
@@ -65,7 +66,7 @@ fun AppBottomNavbar() {
             stiffness = 200f
         ), label = "nav indicator offsetX"
     )
-    var active by remember { mutableStateOf(false) }
+    var active by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -150,12 +151,17 @@ private fun NavButton(item: BottomNav, dismiss: () -> Unit, onPositioned: (Float
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Icon(item.icon, contentDescription = item.label)
+        Icon(
+            item.icon, 
+            contentDescription = item.label,
+            tint = MaterialTheme.colorScheme.onSurface
+        )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
             item.label,
             style = MaterialTheme.typography.labelSmall,
-            fontSize = 10.sp
+            fontSize = 10.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -180,6 +186,7 @@ private fun SpotlightActionButton(
         Icon(
             Icons.Rounded.Add,
             contentDescription = "Add",
+            tint = MaterialTheme.colorScheme.onTertiaryContainer,
             modifier = Modifier
                 .size(50.dp)
                 .rotate(rotate)
@@ -255,9 +262,17 @@ private fun ActionButton(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
-            Icon(item.icon, contentDescription = item.label)
+            Icon(
+                item.icon, 
+                contentDescription = item.label,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Spacer(modifier = Modifier.height(5.dp))
-            Text(item.label, style = MaterialTheme.typography.labelMedium)
+            Text(
+                item.label, 
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
