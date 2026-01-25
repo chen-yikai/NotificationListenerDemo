@@ -8,6 +8,7 @@ import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
 import dev.eliaschen.noti.ui.Screen
+import org.checkerframework.checker.guieffect.qual.UI
 
 interface TabRowData {
     val label: String
@@ -48,5 +49,6 @@ data class ExtraOption(
     val active: Boolean = false,
     val timestamp: Long = 0L,
     val format: String = "yyyy/MM/dd",
+    val extraAction: (() -> Unit)? = null,
     val action: () -> Unit
 )
