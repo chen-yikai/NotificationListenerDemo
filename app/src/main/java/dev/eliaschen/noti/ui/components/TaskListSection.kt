@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -130,43 +131,45 @@ fun TaskListSection(
                         .clip(RoundedCornerShape(15.dp))
                         .background(MaterialTheme.colorScheme.secondaryContainer.copy(0.2f))
                 ) {
-                    if (tasks.isEmpty()) {
-                        Text(
-                            text = emptyMessage,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(40.dp)
-                        )
-                    } else {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
-                            contentPadding = PaddingValues(
-                                10.dp
-                            ),
-                            modifier = Modifier.height(300.dp)
-                        ) {
-                            items(
-                                tasks,
-                                key = { it.id },
-                                contentType = { "task" }
-                            ) { task ->
-                                TaskCard(
-                                    task = task,
-                                    onCheckedChange = { checked ->
-                                        onTaskCheckedChange(task.id, checked)
-                                    },
-                                    modifier = Modifier.animateItem(
-                                        fadeInSpec = spring(stiffness = Spring.StiffnessLow),
-                                        fadeOutSpec = spring(stiffness = Spring.StiffnessLow),
-                                        placementSpec = spring(
-                                            stiffness = Spring.StiffnessLow,
-                                            dampingRatio = Spring.DampingRatioMediumBouncy
+                    AnimatedContent(tasks.isEmpty()) {
+                        if (it) {
+                            Text(
+                                text = emptyMessage,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(40.dp)
+                            )
+                        } else {
+                            LazyColumn(
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                                contentPadding = PaddingValues(
+                                    10.dp
+                                ),
+                                modifier = Modifier.height(300.dp)
+                            ) {
+                                items(
+                                    tasks,
+                                    key = { it.id },
+                                    contentType = { "task" }
+                                ) { task ->
+                                    TaskCard(
+                                        task = task,
+                                        onCheckedChange = { checked ->
+                                            onTaskCheckedChange(task.id, checked)
+                                        },
+                                        modifier = Modifier.animateItem(
+                                            fadeInSpec = spring(stiffness = Spring.StiffnessLow),
+                                            fadeOutSpec = spring(stiffness = Spring.StiffnessLow),
+                                            placementSpec = spring(
+                                                stiffness = Spring.StiffnessLow,
+                                                dampingRatio = Spring.DampingRatioMediumBouncy
+                                            )
                                         )
                                     )
-                                )
+                                }
                             }
                         }
                     }
