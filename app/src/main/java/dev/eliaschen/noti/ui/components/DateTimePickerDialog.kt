@@ -2,6 +2,7 @@ package dev.eliaschen.noti.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -48,16 +50,17 @@ import java.util.Locale
 @Composable
 fun DateTimePickerDialog(
     dismiss: () -> Unit,
-    onConfirm: (Long) -> Unit = {}
+    onConfirm: (dateMillis: Long, timeMinutes: Long?) -> Unit = { _, _ -> }
 ) {
     var selectedDateTime by remember { mutableStateOf(LocalDateTime.now()) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
-    
+    var hasTimeSet by remember { mutableStateOf(false) }
+
     val dateTimeMillis = selectedDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     val dateFormatter = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    
+
     val options = listOf(
         ExtraOption(
             "Date",
@@ -69,10 +72,10 @@ fun DateTimePickerDialog(
             "Time",
             Icons.Rounded.AccessTime,
             timestamp = dateTimeMillis,
-            format = "HH:mm"
+            format = if (hasTimeSet) "HH:mm" else ""
         ) { showTimePicker = true },
     )
-    
+
     val formatters = mapOf(
         "yyyy/MM/dd" to dateFormatter,
         "HH:mm" to timeFormatter
@@ -97,9 +100,14 @@ fun DateTimePickerDialog(
             initialMinute = selectedDateTime.minute,
             onDismiss = {
                 showTimePicker = false
+            },
+            onClear = {
+                hasTimeSet = false
+                showTimePicker = false
             }
         ) { hour, minute ->
             selectedDateTime = selectedDateTime.withHour(hour).withMinute(minute)
+            hasTimeSet = true
         }
     }
     Dialog(onDismissRequest = dismiss) {
@@ -125,8 +133,11 @@ fun DateTimePickerDialog(
                             Text(item.label, style = MaterialTheme.typography.titleMedium)
                         }
                         Text(
-                            formatters[item.format]?.format(item.timestamp) ?: "",
-                            style = MaterialTheme.typography.labelLarge
+                            text = if (item.format.isEmpty()) "Not set" else formatters[item.format]?.format(
+                                item.timestamp
+                            ) ?: "",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = if (item.format.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant else Color.Unspecified
                         )
                     }
                     HorizontalDivider()
@@ -142,11 +153,21 @@ fun DateTimePickerDialog(
                         TextButton(onClick = dismiss) { Text("Cancel") }
                         Spacer(Modifier.width(10.dp))
                         TextButton(onClick = {
-                            val epochMillis = selectedDateTime
+                            // Get date at start of day (00:00:00)
+                            val dateAtStartOfDay = selectedDateTime
+                                .withHour(0).withMinute(0).withSecond(0).withNano(0)
                                 .atZone(ZoneId.systemDefault())
                                 .toInstant()
                                 .toEpochMilli()
-                            onConfirm(epochMillis)
+                            
+                            // Calculate time in minutes from midnight if time was set
+                            val timeInMinutes = if (hasTimeSet) {
+                                (selectedDateTime.hour * 60 + selectedDateTime.minute).toLong()
+                            } else {
+                                null
+                            }
+                            
+                            onConfirm(dateAtStartOfDay, timeInMinutes)
                             dismiss()
                         }) { Text("Done") }
                     }
@@ -196,6 +217,7 @@ private fun CustomTimePickerDialog(
     initialHour: Int,
     initialMinute: Int,
     onDismiss: () -> Unit,
+    onClear: () -> Unit,
     onConfirm: (Int, Int) -> Unit
 ) {
     val timePickerState = rememberTimePickerState(
@@ -206,20 +228,36 @@ private fun CustomTimePickerDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = {
-                onConfirm(timePickerState.hour, timePickerState.minute)
-                onDismiss()
-            }) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TextButton(onClick = {
+                    onClear()
+                    onDismiss()
+                }) {
+                    Text("Clear")
+                }
+                Row {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    TextButton(onClick = {
+                        onConfirm(timePickerState.hour, timePickerState.minute)
+                        onDismiss()
+                    }) {
+                        Text("OK")
+                    }
+                }
             }
         },
         text = {
-            TimePicker(state = timePickerState)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                TimePicker(state = timePickerState)
+            }
         }
     )
 }

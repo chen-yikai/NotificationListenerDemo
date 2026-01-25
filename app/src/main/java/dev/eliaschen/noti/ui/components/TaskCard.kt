@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
@@ -32,7 +33,21 @@ fun TaskCard(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val timeFormatter = remember { SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()) }
+    val dateFormatter = remember { SimpleDateFormat("MMM dd", Locale.getDefault()) }
+    val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    
+    val dateTimeText = when {
+        task.date == null -> null
+        task.time == null -> dateFormatter.format(task.date)
+        else -> {
+            val calendar = java.util.Calendar.getInstance().apply {
+                timeInMillis = task.date
+                set(java.util.Calendar.HOUR_OF_DAY, (task.time / 60).toInt())
+                set(java.util.Calendar.MINUTE, (task.time % 60).toInt())
+            }
+            "${dateFormatter.format(task.date)}, ${timeFormatter.format(calendar.timeInMillis)}"
+        }
+    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -52,30 +67,32 @@ fun TaskCard(
                 onCheckedChange = onCheckedChange
             )
 
-            Column(
+            Row(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = task.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    textDecoration = if (task.done) TextDecoration.LineThrough else null,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                if (task.detail != null) {
+                Column {
                     Text(
-                        text = task.detail,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = task.title,
+                        style = MaterialTheme.typography.titleMedium,
                         textDecoration = if (task.done) TextDecoration.LineThrough else null,
-                        maxLines = 2,
+                        maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+
+                    if (task.detail != null) {
+                        Text(
+                            text = task.detail,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textDecoration = if (task.done) TextDecoration.LineThrough else null,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 }
 
-                if (task.time != null) {
+                if (dateTimeText != null) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -84,10 +101,10 @@ fun TaskCard(
                             imageVector = Icons.Rounded.AccessTime,
                             contentDescription = "Time",
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(0.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                         Text(
-                            text = timeFormatter.format(task.time),
+                            text = dateTimeText,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )

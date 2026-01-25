@@ -60,15 +60,27 @@ fun TaskBottomSheet(
     val info = rememberTextFieldState()
     val titleFocusRequester = remember { FocusRequester() }
     val detailFocusRequester = remember { FocusRequester() }
-    var time by remember { mutableStateOf(0L) }
-    var hasTime by remember { mutableStateOf(false) }
+    var dateMillis by remember { mutableStateOf<Long?>(null) }
+    var timeMinutes by remember { mutableStateOf<Long?>(null) }
     var showTimePicker by remember { mutableStateOf(false) }
     var hasDetails by remember { mutableStateOf(false) }
 
-    val timeFormatter = remember { SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()) }
-    val timeLabel = if (hasTime && time > 0) timeFormatter.format(time) else "Time"
+    val dateFormatter = remember { SimpleDateFormat("MMM dd", Locale.getDefault()) }
+    val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val timeLabel = when {
+        dateMillis == null -> "Date & Time"
+        timeMinutes == null -> dateFormatter.format(dateMillis)
+        else -> {
+            val calendar = java.util.Calendar.getInstance().apply {
+                timeInMillis = dateMillis!!
+                set(java.util.Calendar.HOUR_OF_DAY, (timeMinutes!! / 60).toInt())
+                set(java.util.Calendar.MINUTE, (timeMinutes!! % 60).toInt())
+            }
+            "${dateFormatter.format(dateMillis)}, ${timeFormatter.format(calendar.timeInMillis)}"
+        }
+    }
 
-    val timeIcon = if (hasTime) Icons.Rounded.Close else Icons.Rounded.AccessTime
+    val timeIcon = if (dateMillis != null) Icons.Rounded.Close else Icons.Rounded.AccessTime
 
     val options = listOf(
         ExtraOption("Details", Icons.Rounded.ShortText, hasDetails) {
@@ -79,10 +91,10 @@ fun TaskBottomSheet(
                 }
             }
         },
-        ExtraOption(timeLabel, timeIcon, hasTime) {
-            if (hasTime) {
-                time = 0L
-                hasTime = false
+        ExtraOption(timeLabel, timeIcon, dateMillis != null) {
+            if (dateMillis != null) {
+                dateMillis = null
+                timeMinutes = null
             } else {
                 showTimePicker = true
             }
@@ -96,9 +108,9 @@ fun TaskBottomSheet(
     if (showTimePicker) {
         DateTimePickerDialog(
             dismiss = { showTimePicker = false },
-            onConfirm = { selectedTimeMillis ->
-                time = selectedTimeMillis
-                hasTime = true
+            onConfirm = { selectedDateMillis, selectedTimeMinutes ->
+                dateMillis = selectedDateMillis
+                timeMinutes = selectedTimeMinutes
             }
         )
     }
@@ -171,13 +183,14 @@ fun TaskBottomSheet(
             ) {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(options) { item ->
+                        val color = if (item.active) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant
                         AssistChip(
                             onClick = item.action,
                             label = { Text(item.label) },
                             colors = AssistChipDefaults.assistChipColors(
                                 containerColor = if (item.active) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                leadingIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                labelColor = color,
+                                leadingIconContentColor = color
                             ),
                             leadingIcon = {
                                 Icon(
@@ -192,7 +205,8 @@ fun TaskBottomSheet(
                     val currentTime = System.currentTimeMillis()
                     val task = TaskEntity(
                         title = title.text.toString().ifEmpty { "Untitled" },
-                        time = if (hasTime) time else null,
+                        date = dateMillis,
+                        time = timeMinutes,
                         detail = if (hasDetails) info.text.toString() else null,
                         createdAt = currentTime,
                         updatedAt = currentTime

@@ -24,7 +24,7 @@ class NotificationViewModel @Inject constructor(
     private val db: NotificationDao,
     val cache: LruCache<Long, PendingIntent>,
     private val notifyManager: NotificationManager,
-    @ApplicationContext private val appContext: Context
+    @param:ApplicationContext private val appContext: Context
 ) : ViewModel() {
     val activeNotifications: StateFlow<List<NotificationEntity>> = db.getActiveNotifications().stateIn(
         viewModelScope,

@@ -75,8 +75,16 @@ class NotificationListener : NotificationListenerService() {
         )
         serviceScope.launch {
             if (!sbn.isOngoing) {
-                val id = notificationDao.addNotification(data)
-                cache.put(id, sbn.notification.contentIntent)
+                val duplicateCount = notificationDao.isDuplicateNotification(
+                    packageName = data.packageName,
+                    title = data.title,
+                    text = data.text,
+                    notificationId = data.notificationId
+                )
+                if (duplicateCount == 0) {
+                    val id = notificationDao.addNotification(data)
+                    cache.put(id, sbn.notification.contentIntent)
+                }
                 cancelNotification(sbn.key)
             }
         }
