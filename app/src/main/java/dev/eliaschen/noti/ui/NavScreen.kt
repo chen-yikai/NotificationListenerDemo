@@ -5,6 +5,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntry
@@ -14,6 +15,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import dev.eliaschen.noti.ui.components.AppBottomNavbar
 import dev.eliaschen.noti.utils.LocalNavStack
+import dev.eliaschen.noti.utils.LocalRootScaffoldPadding
 import dev.eliaschen.noti.utils.LocalSnackBarHostState
 import kotlinx.serialization.Serializable
 
@@ -50,10 +52,12 @@ fun NavScreen() {
                 AppBottomNavbar()
             }, snackbarHost = { SnackbarHost(snackbarHostState) }
             ) { innerPadding ->
-                NavDisplay(
-                    backStack,
-                    entryProvider = entryProvider,
-                    onBack = { backStack.removeLastOrNull() })
+                CompositionLocalProvider(LocalRootScaffoldPadding provides innerPadding) {
+                    NavDisplay(
+                        backStack,
+                        entryProvider = entryProvider,
+                        onBack = { backStack.removeLastOrNull() })
+                }
             }
         }
     }
