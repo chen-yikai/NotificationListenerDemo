@@ -65,15 +65,7 @@ fun ReminderScreen(
             selectedTab = it
         }
     }) { innerPadding ->
-        val todoTasks = allTodo.filter { !it.done }
-        val doneTasks = allTodo.filter { it.done }
-
         TaskTabContent(
-            todoTasks = todoTasks,
-            doneTasks = doneTasks,
-            onTaskCheckedChange = { taskId, checked ->
-                viewModel.updateTaskStatus(taskId, checked)
-            },
             innerPadding = innerPadding
         )
     }

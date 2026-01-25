@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,19 +13,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.eliaschen.noti.room.table.TaskEntity
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.eliaschen.noti.utils.LocalRootScaffoldPadding
+import dev.eliaschen.noti.viewmodel.TaskViewModel
 
 @Composable
 fun TaskTabContent(
-    todoTasks: List<TaskEntity>,
-    doneTasks: List<TaskEntity>,
-    onTaskCheckedChange: (Long, Boolean) -> Unit,
+    viewModel: TaskViewModel = hiltViewModel(),
     innerPadding: PaddingValues
 ) {
     val scaffoldPadding = LocalRootScaffoldPadding.current
     var todoExpanded by remember { mutableStateOf(true) }
     var doneExpanded by remember { mutableStateOf(false) }
+    val tasks by viewModel.allTodo.collectAsStateWithLifecycle()
+    val doneTasks = tasks.filter { it.done }
+    val todoTasks = tasks.filter { !it.done }
+
+    fun onTaskCheckedChange(id: Long, checked: Boolean) {
+        viewModel.updateTaskStatus(id, checked)
+    }
 
     Column(
         modifier = Modifier
@@ -43,7 +49,9 @@ fun TaskTabContent(
             title = "Task",
             tasks = todoTasks,
             emptyMessage = "No tasks yet, Create one!",
-            onTaskCheckedChange = onTaskCheckedChange,
+            onTaskCheckedChange = { id, checked ->
+                onTaskCheckedChange(id, checked)
+            },
             isExpanded = todoExpanded,
             onExpandChange = { todoExpanded = it }
         )
@@ -51,7 +59,9 @@ fun TaskTabContent(
             title = "Completed",
             tasks = doneTasks,
             emptyMessage = "No completed tasks yet",
-            onTaskCheckedChange = onTaskCheckedChange,
+            onTaskCheckedChange = { id, checked ->
+                onTaskCheckedChange(id, checked)
+            },
             isExpanded = doneExpanded,
             onExpandChange = { doneExpanded = it },
         )
