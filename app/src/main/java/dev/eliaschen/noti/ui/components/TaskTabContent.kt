@@ -40,21 +40,20 @@ fun TaskTabContent(
         verticalArrangement = Arrangement.spacedBy(15.dp),
     ) {
         TaskListSection(
-            title = "Todo",
+            title = "Task",
             tasks = todoTasks,
-            emptyMessage = "No tasks yet\nCreate one to get started!",
+            emptyMessage = "No tasks yet, Create one!",
             onTaskCheckedChange = onTaskCheckedChange,
             isExpanded = todoExpanded,
             onExpandChange = { todoExpanded = it }
         )
         TaskListSection(
-            title = "Done",
+            title = "Completed",
             tasks = doneTasks,
             emptyMessage = "No completed tasks yet",
             onTaskCheckedChange = onTaskCheckedChange,
             isExpanded = doneExpanded,
             onExpandChange = { doneExpanded = it },
-            showBottomSpacer = true
         )
     }
 }

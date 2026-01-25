@@ -1,11 +1,16 @@
 package dev.eliaschen.noti.ui.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,7 +55,6 @@ fun TaskListSection(
     modifier: Modifier = Modifier,
     isExpanded: Boolean = true,
     onExpandChange: (Boolean) -> Unit = {},
-    showBottomSpacer: Boolean = false
 ) {
     val rotationAngle by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
@@ -90,11 +94,25 @@ fun TaskListSection(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "${tasks.size}",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f)
-                        )
+                        AnimatedContent(
+                            targetState = tasks.size,
+                            transitionSpec = {
+                                scaleIn(
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    ),
+                                    initialScale = 0.5f
+                                ) togetherWith fadeOut(animationSpec = spring(stiffness = Spring.StiffnessHigh))
+                            },
+                            label = "count animation"
+                        ) { count ->
+                            Text(
+                                text = "$count",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.5f)
+                            )
+                        }
                         Icon(
                             imageVector = Icons.Rounded.KeyboardArrowDown,
                             contentDescription = if (isExpanded) "Collapse" else "Expand",
@@ -155,11 +173,6 @@ fun TaskListSection(
                                         )
                                     )
                                 )
-                            }
-                            if (showBottomSpacer) {
-                                item {
-                                    Spacer(Modifier.height(20.dp))
-                                }
                             }
                         }
                     }
