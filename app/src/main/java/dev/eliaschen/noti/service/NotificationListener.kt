@@ -63,7 +63,7 @@ class NotificationListener : NotificationListenerService() {
         val smallBitmap = smallIcon?.loadDrawable(this)?.let { drawable ->
             drawableToBitmap(drawable)
         }
-        val title = extra.getCharSequence("android.title")?.toString() ?: "No Title"
+        val title = extra.getCharSequence("android.title")?.toString() ?: return
         val text = extra.getCharSequence("android.text")?.toString() ?: ""
         val data = NotificationEntity(
             notificationId = sbn.id,
