@@ -3,6 +3,7 @@ package dev.eliaschen.noti.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -26,13 +27,12 @@ fun NotificationItemCard(
     onItemClick: (NotificationEntity) -> Unit
 ) {
     Card(
-        modifier = Modifier.padding(vertical = 5.dp),
         onClick = { onItemClick(item) }
     ) {
         Row(
             modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth(),
+                .fillMaxSize()
+                .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {

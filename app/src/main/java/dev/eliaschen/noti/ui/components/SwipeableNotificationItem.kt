@@ -1,11 +1,16 @@
 package dev.eliaschen.noti.ui.components
 
-import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Archive
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.eliaschen.noti.room.table.NotificationEntity
 import dev.eliaschen.noti.utils.LocalSnackBarHostState
 import dev.eliaschen.noti.utils.NotificationTab
@@ -22,42 +27,38 @@ fun SwipeableNotificationItem(
 ) {
     val snackbarHostState = LocalSnackBarHostState.current
     val scope = rememberCoroutineScope()
-    val dismissState = rememberSwipeToDismissBoxState(
-        positionalThreshold = { totalDistance -> totalDistance * 0.9f },
-    )
     val isDelete = selectedTab == NotificationTab.History
 
-    SwipeToDismissBox(
-        modifier = modifier,
-        state = dismissState,
-        enableDismissFromEndToStart = true,
-        enableDismissFromStartToEnd = selectedTab == NotificationTab.Active,
-        onDismiss = { value ->
-            when (value) {
-                SwipeToDismissBoxValue.EndToStart -> {
-                    if (isDelete) {
-                        viewModel.deleteNotification(item)
-                    } else {
-                        viewModel.archiveNotification(item.id)
-                    }
-                    scope.launch {
-                        dismissState.snapTo(SwipeToDismissBoxValue.Settled)
-                    }
+    Dismissable(
+        modifier = modifier.padding(vertical = 5.dp),
+        onStartToEndAction = if (selectedTab == NotificationTab.Active) {
+            {
+                viewModel.repostNotification(item)
+                scope.launch {
+                    snackbarHostState.showSnackbar("Reposted to notification center")
                 }
-
-                SwipeToDismissBoxValue.StartToEnd -> {
-                    viewModel.repostNotification(item)
-                    scope.launch {
-                        dismissState.snapTo(SwipeToDismissBoxValue.Settled)
-                        snackbarHostState.showSnackbar("Reposted to notification center")
-                    }
-                }
-
-                else -> false
+                dismiss()
             }
+        } else null,
+        onEndToStartAction = {
+            if (isDelete) {
+                viewModel.deleteNotification(item)
+            } else {
+                viewModel.archiveNotification(item.id)
+            }
+            dismiss()
         },
-        backgroundContent = {
-            SwipeDismissBackground(dismissState, isDelete)
+        startContent = {
+            Icon(
+                imageVector = Icons.Rounded.Notifications,
+                contentDescription = "Repost"
+            )
+        },
+        endContent = {
+            Icon(
+                imageVector = if (isDelete) Icons.Rounded.Delete else Icons.Rounded.Archive,
+                contentDescription = if (isDelete) "Delete" else "Archive"
+            )
         }
     ) {
         NotificationItemCard(

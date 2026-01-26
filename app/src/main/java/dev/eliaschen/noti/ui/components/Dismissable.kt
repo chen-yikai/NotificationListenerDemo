@@ -96,7 +96,7 @@ fun Dismissable(
                     .background(animatedColor)
                     .padding(horizontal = 20.dp)
             ) {
-                if (!swipeToEnd)
+                if (!swipeToEnd) {
                     Box(
                         modifier = Modifier
                             .scale(scale)
@@ -104,14 +104,15 @@ fun Dismissable(
                     ) {
                         startContent()
                     }
-
-
-                if (!swipeToStart) Box(
-                    modifier = Modifier
-                        .scale(scale)
-                        .align(Alignment.CenterEnd)
-                ) {
-                    endContent()
+                }
+                if (!swipeToStart) {
+                    Box(
+                        modifier = Modifier
+                            .scale(scale)
+                            .align(Alignment.CenterEnd)
+                    ) {
+                        endContent()
+                    }
                 }
             }
         },
