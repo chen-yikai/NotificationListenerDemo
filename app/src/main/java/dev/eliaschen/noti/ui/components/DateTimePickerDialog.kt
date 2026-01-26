@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import dev.eliaschen.noti.utils.ExtraOption
@@ -50,12 +49,21 @@ import java.util.Locale
 @Composable
 fun DateTimePickerDialog(
     dismiss: () -> Unit,
-    onConfirm: (dateMillis: Long, timeMinutes: Long?) -> Unit = { _, _ -> }
+    onConfirm: (dateMillis: Long, timeMinutes: Long?) -> Unit = { _, _ -> },
+    dateMillis: Long?,
+    timeMinutes: Long?
 ) {
-    var selectedDateTime by remember { mutableStateOf(LocalDateTime.now()) }
+    var selectedDateTime by remember {
+        mutableStateOf(
+            if (dateMillis == null) LocalDateTime.now() else LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(dateMillis + (timeMinutes ?: 0) * 60 * 1000),
+                ZoneId.systemDefault()
+            )
+        )
+    }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
-    var hasTimeSet by remember { mutableStateOf(false) }
+    var hasTimeSet by remember { mutableStateOf(timeMinutes !== null) }
 
     val dateTimeMillis = selectedDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     val dateFormatter = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
@@ -159,14 +167,14 @@ fun DateTimePickerDialog(
                                 .atZone(ZoneId.systemDefault())
                                 .toInstant()
                                 .toEpochMilli()
-                            
+
                             // Calculate time in minutes from midnight if time was set
                             val timeInMinutes = if (hasTimeSet) {
                                 (selectedDateTime.hour * 60 + selectedDateTime.minute).toLong()
                             } else {
                                 null
                             }
-                            
+
                             onConfirm(dateAtStartOfDay, timeInMinutes)
                             dismiss()
                         }) { Text("Done") }

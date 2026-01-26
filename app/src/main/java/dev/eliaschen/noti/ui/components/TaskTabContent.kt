@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,9 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.eliaschen.noti.room.table.TaskEntity
 import dev.eliaschen.noti.utils.LocalRootScaffoldPadding
 import dev.eliaschen.noti.viewmodel.TaskViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskTabContent(
     viewModel: TaskViewModel = hiltViewModel(),
@@ -30,9 +34,41 @@ fun TaskTabContent(
     val tasks by viewModel.allTodo.collectAsStateWithLifecycle()
     val doneTasks = tasks.filter { it.done }
     val todoTasks = tasks.filter { !it.done }
+    var selectedTaskToView by remember { mutableStateOf<TaskEntity?>(null) }
+    var selectedTaskToEdit by remember { mutableStateOf<TaskEntity?>(null) }
+    var showViewSheet by remember { mutableStateOf(false) }
+    var showEditSheet by remember { mutableStateOf(false) }
+    val viewSheetState = rememberModalBottomSheetState()
+    val editSheetState = rememberModalBottomSheetState()
 
     fun onTaskCheckedChange(id: Long, checked: Boolean) {
         viewModel.updateTaskStatus(id, checked)
+    }
+
+    if (showViewSheet && selectedTaskToView != null) {
+        TaskViewSheet(
+            sheetState = viewSheetState,
+            task = selectedTaskToView!!,
+            onDismiss = {
+                showViewSheet = false
+                selectedTaskToView = null
+            },
+            onEdit = { task ->
+                selectedTaskToEdit = task
+                showEditSheet = true
+            }
+        )
+    }
+
+    if (showEditSheet) {
+        TaskBottomSheet(
+            sheetState = editSheetState,
+            existingTask = selectedTaskToEdit,
+            onDismiss = {
+                showEditSheet = false
+                selectedTaskToEdit = null
+            }
+        )
     }
 
     Column(
@@ -54,7 +90,11 @@ fun TaskTabContent(
                 onTaskCheckedChange(id, checked)
             },
             isExpanded = todoExpanded,
-            onExpandChange = { todoExpanded = it }
+            onExpandChange = { todoExpanded = it },
+            onTaskClick = { task ->
+                selectedTaskToView = task
+                showViewSheet = true
+            }
         )
         TaskListSection(
             title = "Completed",
@@ -65,6 +105,10 @@ fun TaskTabContent(
             },
             isExpanded = doneExpanded,
             onExpandChange = { doneExpanded = it },
+            onTaskClick = { task ->
+                selectedTaskToView = task
+                showViewSheet = true
+            }
         )
     }
 }

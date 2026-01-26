@@ -1,5 +1,6 @@
 package dev.eliaschen.noti.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +38,8 @@ fun TaskCard(
     task: TaskEntity,
     onCheckedChange: (Boolean) -> Unit,
     viewModel: TaskViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onTaskClick: ((TaskEntity) -> Unit)? = null
 ) {
     val dateFormatter = remember { SimpleDateFormat("MMM dd", Locale.getDefault()) }
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
@@ -73,7 +75,10 @@ fun TaskCard(
         Card(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
-            )
+            ),
+            modifier = Modifier.clickable(enabled = onTaskClick != null) {
+                onTaskClick?.invoke(task)
+            }
         ) {
             Row(
                 modifier = Modifier

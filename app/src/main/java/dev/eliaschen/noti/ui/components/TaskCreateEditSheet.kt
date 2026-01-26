@@ -15,7 +15,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.ShortText
@@ -58,23 +57,24 @@ import java.util.Locale
 fun TaskBottomSheet(
     sheetState: SheetState,
     todo: TaskViewModel = hiltViewModel(),
+    existingTask: TaskEntity? = null,
     onDismiss: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
 
     // text fields for title and info
-    val title = rememberTextFieldState()
-    val info = rememberTextFieldState()
+    val title = rememberTextFieldState(existingTask?.title ?: "")
+    val info = rememberTextFieldState(existingTask?.detail ?: "")
 
     // focus requester for title and detail
     val titleFocusRequester = remember { FocusRequester() }
     val detailFocusRequester = remember { FocusRequester() }
 
-    var hasDetails by remember { mutableStateOf(false) }
+    var hasDetails by remember { mutableStateOf(existingTask?.detail != null) }
 
     // date & time's milliseconds since epoch data & pattern formatter
-    var dateMillis by remember { mutableStateOf<Long?>(null) }
-    var timeMinutes by remember { mutableStateOf<Long?>(null) }
+    var dateMillis by remember { mutableStateOf<Long?>(existingTask?.date) }
+    var timeMinutes by remember { mutableStateOf<Long?>(existingTask?.time) }
     val dateFormatter = remember { SimpleDateFormat("MMM dd", Locale.getDefault()) }
     val timeFormatter = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
 
@@ -129,7 +129,7 @@ fun TaskBottomSheet(
             onConfirm = { selectedDateMillis, selectedTimeMinutes ->
                 dateMillis = selectedDateMillis
                 timeMinutes = selectedTimeMinutes
-            }
+            }, dateMillis = dateMillis, timeMinutes = timeMinutes
         )
     }
 
@@ -232,15 +232,28 @@ fun TaskBottomSheet(
                 }
                 Button(onClick = {
                     val currentTime = System.currentTimeMillis()
-                    val task = TaskEntity(
-                        title = title.text.toString().ifEmpty { "Untitled" },
-                        date = dateMillis,
-                        time = timeMinutes,
-                        detail = if (hasDetails) info.text.toString() else null,
-                        createdAt = currentTime,
-                        updatedAt = currentTime
-                    )
-                    todo.addTask(task)
+                    if (existingTask != null) {
+                        // Update existing task
+                        val updatedTask = existingTask.copy(
+                            title = title.text.toString().ifEmpty { "Untitled" },
+                            date = dateMillis,
+                            time = timeMinutes,
+                            detail = if (hasDetails) info.text.toString() else null,
+                            updatedAt = currentTime
+                        )
+                        todo.updateTask(updatedTask)
+                    } else {
+                        // Create new task
+                        val task = TaskEntity(
+                            title = title.text.toString().ifEmpty { "Untitled" },
+                            date = dateMillis,
+                            time = timeMinutes,
+                            detail = if (hasDetails) info.text.toString() else null,
+                            createdAt = currentTime,
+                            updatedAt = currentTime
+                        )
+                        todo.addTask(task)
+                    }
                     scope.launch {
                         sheetState.hide()
                         onDismiss()

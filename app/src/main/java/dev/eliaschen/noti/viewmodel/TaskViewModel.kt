@@ -20,6 +20,12 @@ class TaskViewModel @Inject constructor(private val taskDao: TaskDao) : ViewMode
         }
     }
     
+    fun updateTask(task: TaskEntity) {
+        viewModelScope.launch {
+            taskDao.updateTodo(task)
+        }
+    }
+    
     fun updateTaskStatus(id: Long, done: Boolean) {
         viewModelScope.launch {
             taskDao.updateTodoStatus(id, done)

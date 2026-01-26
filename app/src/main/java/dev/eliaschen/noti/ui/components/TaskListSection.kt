@@ -50,6 +50,7 @@ fun TaskListSection(
     modifier: Modifier = Modifier,
     isExpanded: Boolean = true,
     onExpandChange: (Boolean) -> Unit = {},
+    onTaskClick: ((TaskEntity) -> Unit)? = null
 ) {
     val rotationAngle by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
@@ -167,7 +168,8 @@ fun TaskListSection(
                                                 stiffness = Spring.StiffnessLow,
                                                 dampingRatio = Spring.DampingRatioMediumBouncy
                                             )
-                                        )
+                                        ),
+                                        onTaskClick = onTaskClick
                                     )
                                 }
                             }
