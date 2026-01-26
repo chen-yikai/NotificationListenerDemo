@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,8 +25,8 @@ fun TaskTabContent(
     innerPadding: PaddingValues
 ) {
     val scaffoldPadding = LocalRootScaffoldPadding.current
-    var todoExpanded by remember { mutableStateOf(true) }
-    var doneExpanded by remember { mutableStateOf(false) }
+    var todoExpanded by rememberSaveable { mutableStateOf(true) }
+    var doneExpanded by rememberSaveable { mutableStateOf(false) }
     val tasks by viewModel.allTodo.collectAsStateWithLifecycle()
     val doneTasks = tasks.filter { it.done }
     val todoTasks = tasks.filter { !it.done }
@@ -43,7 +44,7 @@ fun TaskTabContent(
             )
             .fillMaxSize()
             .navigationBarsPadding(),
-        verticalArrangement = Arrangement.spacedBy(15.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         TaskListSection(
             title = "Task",
