@@ -58,6 +58,12 @@ class NotificationListener : NotificationListenerService() {
         super.onNotificationPosted(sbn)
         if (sbn.packageName == packageName) return
         val notification = sbn.notification
+        
+        // Skip media/music notifications to avoid stopping playback
+        if (notification.extras.containsKey(Notification.EXTRA_MEDIA_SESSION)) {
+            return
+        }
+        
         val extra = notification.extras
         val smallIcon = notification.smallIcon
         val smallBitmap = smallIcon?.loadDrawable(this)?.let { drawable ->
@@ -73,20 +79,19 @@ class NotificationListener : NotificationListenerService() {
             packageName = sbn.packageName,
             timestamp = System.currentTimeMillis()
         )
-        serviceScope.launch {
-            if (!sbn.isOngoing) {
+        if (!sbn.isOngoing) {
+            serviceScope.launch {
                 val duplicateCount = notificationDao.isDuplicateNotification(
                     packageName = data.packageName,
                     title = data.title,
-                    text = data.text,
-                    notificationId = data.notificationId
+                    text = data.text
                 )
                 if (duplicateCount == 0) {
                     val id = notificationDao.addNotification(data)
                     cache.put(id, sbn.notification.contentIntent)
                 }
-                cancelNotification(sbn.key)
             }
+            cancelNotification(sbn.key)
         }
     }
 

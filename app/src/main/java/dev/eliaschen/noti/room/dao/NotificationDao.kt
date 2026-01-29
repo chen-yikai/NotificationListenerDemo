@@ -18,8 +18,8 @@ interface NotificationDao {
     @Query("SELECT * FROM notification WHERE archived = 0")
     fun getActiveNotifications(): Flow<List<NotificationEntity>>
 
-    @Query("SELECT COUNT(*) FROM notification WHERE packageName = :packageName AND title = :title AND text = :text AND notificationId = :notificationId AND archived = 0")
-    suspend fun isDuplicateNotification(packageName: String, title: String, text: String, notificationId: Int): Int
+    @Query("SELECT COUNT(*) FROM notification WHERE packageName = :packageName AND title = :title AND text = :text AND archived = 0 AND timestamp > :recentThreshold")
+    suspend fun isDuplicateNotification(packageName: String, title: String, text: String, recentThreshold: Long = System.currentTimeMillis() - 2000): Int
 
     @Insert
     suspend fun addNotification(notification: NotificationEntity): Long
